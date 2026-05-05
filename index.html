@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DoodhKhata">
+<meta name="theme-color" content="#1A3A5C">
+<title>DoodhKhata — Milk Ledger</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --cream:#FFF8EE;--milk:#FFFDF9;--warm:#F5EDD8;
+  --blue:#1A3A5C;--blue-mid:#2A5298;--blue-light:#4A90D9;
+  --saffron:#FF8C00;--saffron-light:#FFB347;
+  --green:#2D7A4F;--green-light:#4CAF78;
+  --red:#C0392B;--gold:#D4A017;
+  --text:#1C1C1E;--text-muted:#6B6B6B;--border:#E8DCC8;
+  --shadow-sm:0 2px 8px rgba(26,58,92,0.08);
+  --radius:16px;--radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:'Noto Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;overflow-x:hidden;}
+
+/* ── ONBOARDING ── */
+#onboarding{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#1A3A5C 0%,#2A5298 60%,#1A3A5C 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;}
+.ob-logo{font-family:'Baloo 2',sans-serif;font-size:40px;font-weight:800;color:white;}
+.ob-logo span{color:var(--saffron-light);}
+.ob-tag{color:rgba(255,255,255,0.7);font-size:13px;margin:6px 0 32px;}
+#onboarding h2{color:white;font-family:'Baloo 2',sans-serif;font-size:21px;margin-bottom:6px;}
+#onboarding p{color:rgba(255,255,255,0.65);font-size:13px;margin-bottom:26px;line-height:1.6;}
+.ob-choice{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;}
+.ob-btn{border:none;border-radius:16px;padding:15px 16px;cursor:pointer;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:12px;text-align:left;transition:transform 0.15s;}
+.ob-btn:active{transform:scale(0.97);}
+.ob-btn.seller{background:white;color:var(--blue);}
+.ob-btn.buyer{background:rgba(255,255,255,0.15);color:white;border:2px solid rgba(255,255,255,0.3);}
+.ob-icon{font-size:28px;}
+.ob-txt{display:flex;flex-direction:column;}
+.ob-sub{font-size:11px;font-weight:400;opacity:0.7;margin-top:1px;}
+.ob-reset{margin-top:20px;color:rgba(255,255,255,0.35);font-size:12px;cursor:pointer;text-decoration:underline;}
+
+/* ── HEADER ── */
+.header{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-mid) 100%);color:white;padding:13px 16px 11px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(26,58,92,0.3);}
+.header-top{display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Baloo 2',sans-serif;font-size:19px;font-weight:800;}
+.logo span{color:var(--saffron-light);}
+.header-sub{font-size:10px;opacity:0.6;margin-top:1px;}
+.role-badge{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.28);color:white;font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;cursor:pointer;}
+
+/* ── NAV ── */
+.nav-tabs{display:flex;background:white;border-bottom:2px solid var(--border);position:sticky;top:58px;z-index:90;overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{flex:1;min-width:58px;border:none;background:transparent;padding:9px 4px 8px;font-family:'Noto Sans',sans-serif;font-size:10px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.nav-tab.active{color:var(--blue-mid);border-bottom-color:var(--saffron);}
+.nav-tab .ti{font-size:16px;display:block;margin-bottom:2px;}
+
+/* ── PAGES ── */
+.page{display:none;padding:11px 11px 80px;}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:var(--radius);padding:12px;box-shadow:var(--shadow-sm);margin-bottom:10px;border:1px solid var(--border);}
+.card-title{font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;color:var(--blue);margin-bottom:10px;}
+
+/* ── TODAY HEADER ── */
+.today-hdr{display:flex;align-items:center;justify-content:space-between;background:white;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:9px;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
+.today-hdr-left{display:flex;flex-direction:column;gap:2px;}
+.today-hdr-date{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:var(--blue);}
+.today-hdr-sub{font-size:10px;color:var(--text-muted);}
+.today-hdr.past-mode{border-color:var(--saffron);background:#FFFBF0;}
+.today-hdr.past-mode .today-hdr-date{color:var(--saffron);}
+
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:9px;}
+.sbox{background:white;border-radius:var(--radius-sm);padding:7px 3px;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
+.sbox .n{font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;color:var(--blue);}
+.sbox .l{font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;}
+.sbox.g .n{color:var(--green);}.sbox.o .n{color:var(--saffron);}.sbox.r .n{color:var(--red);}
+
+/* Auto-banner */
+.auto-banner{background:linear-gradient(135deg,#1B6B3A 0%,var(--green-light) 100%);color:white;padding:9px 12px;border-radius:var(--radius-sm);margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;}
+.auto-banner .t{font-size:12px;font-weight:700;}
+.auto-banner .s{font-size:10px;opacity:0.8;}
+
+/* ── CALENDAR PICKER ── */
+.cal-banner{background:white;border:2px solid var(--blue-light);border-radius:var(--radius);padding:12px;margin-bottom:9px;box-shadow:var(--shadow-sm);}
+.cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.cal-nav{border:none;background:var(--warm);border-radius:8px;width:30px;height:30px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cal-month-lbl{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;color:var(--blue);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dow{font-size:9px;font-weight:700;color:var(--text-muted);text-align:center;padding:3px 0;}
+.cal-day{font-size:12px;font-weight:600;text-align:center;padding:6px 2px;border-radius:8px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;}
+.cal-day:hover{background:var(--warm);}
+.cal-day.today{border-color:var(--blue-light);color:var(--blue-mid);}
+.cal-day.selected{background:var(--blue-mid);color:white;border-color:var(--blue-mid);}
+.cal-day.delivered{background:#D4EDDA;color:var(--green);}
+.cal-day.skipped{background:#FEE2E2;color:var(--red);}
+.cal-day.empty{cursor:default;padding:0;border-color:transparent;background:none;}
+.cal-day.cal-off{background:#f5f5f5;color:#ddd;cursor:default;border-color:transparent;}
+.cal-day.cal-unset{background:#fafafa;color:#ccc;border-style:dashed;border-color:#e0e0e0;}
+.cal-day.future{opacity:0.3;cursor:not-allowed;}
+.cal-legend{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.cal-leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);}
+.cal-leg-dot{width:10px;height:10px;border-radius:3px;}
+
+/* ── DEL ROWS ── */
+.del-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:8px;}
+.del-row:last-child{border-bottom:none;}
+.avatar{width:33px;height:33px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;color:white;font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;}
+.avatar.green{background:var(--green);}.avatar.red{background:var(--red);}.avatar.grey{background:#aaa;}
+.del-info{flex:1;min-width:0;}
+.del-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.del-meta{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.del-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.qty-row{display:flex;align-items:center;gap:4px;}
+.qbtn{width:23px;height:23px;border-radius:50%;border:2px solid var(--blue-light);background:white;color:var(--blue-mid);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qval{font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:var(--blue);min-width:20px;text-align:center;}
+.qunit{font-size:10px;color:var(--text-muted);}
+
+/* Status pills */
+.status-pill{padding:4px 9px;border-radius:20px;font-size:10px;font-weight:700;border:2px solid;cursor:pointer;transition:all 0.15s;white-space:nowrap;user-select:none;}
+.status-pill.delivered{background:var(--green);color:white;border-color:var(--green);}
+.status-pill.skipped{background:#FEE2E2;color:var(--red);border-color:var(--red);}
+.status-pill.pending{background:#FFF7ED;color:var(--saffron);border-color:var(--saffron);}
+.status-pill.off{background:var(--warm);color:#bbb;border-color:var(--border);cursor:default;}
+.status-pill.unset{background:#f5f5f5;color:#999;border-color:#ccc;border-style:dashed;}
+
+/* ── SEARCH WITH CLEAR ── */
+.search-wrap{position:relative;margin-bottom:10px;}
+.search-wrap input{width:100%;padding:9px 34px 9px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'Noto Sans',sans-serif;background:white;outline:none;transition:border 0.18s;}
+.search-wrap input:focus{border-color:var(--blue-light);}
+.search-wrap input::placeholder{color:#bbb;}
+.search-clear{position:absolute;right:9px;top:50%;transform:translateY(-50%);border:none;background:none;color:#aaa;font-size:16px;cursor:pointer;padding:2px 4px;display:none;line-height:1;}
+.search-clear.visible{display:block;}
+
+/* ── CUSTOMERS ── */
+.cust-card{background:white;border-radius:var(--radius);padding:11px 12px;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:transform 0.12s;}
+.cust-card:active{transform:scale(0.98);}
+.cust-info{flex:1;min-width:0;}
+.cust-name{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700;color:var(--blue);}
+.cust-meta{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.cust-amt{text-align:right;flex-shrink:0;}
+.due-amt{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:var(--saffron);}
+.due-amt.clear{color:var(--green);}
+.due-lbl{font-size:9px;color:var(--text-muted);text-transform:uppercase;}
+
+/* ── BILLS ── */
+.bill-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;}
+.bill-hd{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-mid) 100%);color:white;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;}
+.bill-month{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;}
+.bill-total{font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:var(--saffron-light);}
+.bill-body{padding:9px 13px;}
+.bill-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;}
+.bill-row .lbl{color:var(--text-muted);}
+.bill-row .val{font-weight:600;}
+.status-tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+.status-tag.paid{background:#D4EDDA;color:var(--green);}
+.status-tag.partial{background:#FFF3E0;color:#E65100;}
+.status-tag.pending{background:#FEE2E2;color:var(--red);}
+.bill-actions{display:flex;gap:5px;padding:0 13px 11px;flex-wrap:wrap;}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans',sans-serif;transition:all 0.14s;display:inline-flex;align-items:center;gap:4px;line-height:1;}
+.btn:active{transform:scale(0.96);}
+.btn-primary{background:var(--blue-mid);color:white;}
+.btn-green{background:var(--green);color:white;}
+.btn-saffron{background:var(--saffron);color:white;}
+.btn-wa{background:#25D366;color:white;}
+.btn-outline{background:transparent;color:var(--blue-mid);border:2px solid var(--blue-mid);}
+.btn-red{background:var(--red);color:white;}
+.btn-gold{background:var(--gold);color:white;}
+.btn-grey{background:#eee;color:var(--text-muted);}
+.btn-purple{background:#7C3AED;color:white;}
+.btn-block{width:100%;justify-content:center;margin-top:6px;}
+.btn-sm{padding:6px 10px;font-size:11px;}
+.btn-xs{padding:3px 7px;font-size:10px;}
+
+/* ── FAB ── */
+.fab{position:fixed;bottom:20px;right:16px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--saffron) 0%,#E67E00 100%);color:white;font-size:26px;border:none;cursor:pointer;box-shadow:0 6px 20px rgba(255,140,0,0.45);display:flex;align-items:center;justify-content:center;z-index:200;transition:all 0.2s;}
+.fab:active{transform:scale(0.9);}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:white;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:19px 17px 28px;max-height:92vh;overflow-y:auto;animation:slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-title{font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:var(--blue);margin-bottom:13px;}
+.modal-close{float:right;background:var(--warm);border:none;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);}
+
+/* ── CONFIRM ── */
+#confirmBox{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;padding:20px;}
+#confirmBox.open{display:flex;}
+.confirm-inner{background:white;border-radius:20px;padding:22px 18px;max-width:320px;width:100%;text-align:center;animation:popIn 0.22s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.confirm-icon{font-size:32px;margin-bottom:8px;}
+.confirm-title{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--blue);margin-bottom:4px;}
+.confirm-msg{font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;}
+.confirm-btns{display:flex;gap:10px;}
+.confirm-btns .btn{flex:1;justify-content:center;}
+
+/* ── FORMS ── */
+.fg{margin-bottom:11px;}
+.fl{font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:0.4px;}
+.fi{width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'Noto Sans',sans-serif;background:var(--milk);transition:border 0.18s;outline:none;}
+.fi:focus{border-color:var(--blue-light);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.fhint{font-size:10px;color:var(--text-muted);margin-top:3px;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{background:var(--warm);padding:6px 8px;text-align:left;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;}
+.tbl td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl .amt{font-weight:700;color:var(--blue);font-family:'Baloo 2',sans-serif;}
+
+/* ── MONTH CHIPS ── */
+.mchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:11px;scrollbar-width:none;}
+.mchips::-webkit-scrollbar{display:none;}
+.mchip{flex-shrink:0;padding:5px 12px;border-radius:20px;border:2px solid var(--border);background:white;font-size:11px;font-weight:700;cursor:pointer;color:var(--text-muted);transition:all 0.18s;}
+.mchip.active{background:var(--blue-mid);color:white;border-color:var(--blue-mid);}
+
+/* ── SECTION HDR ── */
+.shdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
+.stitle{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:var(--blue);}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:36px 20px;color:var(--text-muted);}
+.empty .ei{font-size:40px;margin-bottom:10px;}
+.empty h3{font-family:'Baloo 2',sans-serif;font-size:16px;color:var(--blue);margin-bottom:5px;}
+.empty p{font-size:12px;line-height:1.5;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);background:#1C1C1E;color:white;padding:8px 16px;border-radius:22px;font-size:12px;font-weight:600;z-index:1000;opacity:0;transition:all 0.28s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+
+/* ── IMAGE SHARE MODAL ── */
+#shareImgModal{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;padding:20px;flex-direction:column;gap:14px;}
+#shareImgModal.open{display:flex;}
+#shareImgModal img{max-width:100%;max-height:60vh;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.share-hint{color:white;font-size:13px;text-align:center;line-height:1.6;}
+.share-hint b{color:var(--saffron-light);}
+
+/* ── PROFILE ROWS ── */
+.profile-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);}
+.profile-row:last-child{border-bottom:none;}
+
+@media print{body *{visibility:hidden;}#printArea,#printArea *{visibility:visible;}#printArea{position:fixed;left:0;top:0;width:100%;padding:20px;}}
+</style>
+
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥛</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥛</text></svg>">
+<link rel="manifest" href="data:application/json,{
+  &quot;name&quot;:&quot;DoodhKhata&quot;,
+  &quot;short_name&quot;:&quot;DoodhKhata&quot;,
+  &quot;start_url&quot;:&quot;.&quot;,
+  &quot;display&quot;:&quot;standalone&quot;,
+  &quot;background_color&quot;:&quot;%23FFF8EE&quot;,
+  &quot;theme_color&quot;:&quot;%231A3A5C&quot;,
+  &quot;icons&quot;:[
+    {
+      &quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🥛%3C/text%3E%3C/svg%3E&quot;,
+      &quot;sizes&quot;:&quot;any&quot;,
+      &quot;type&quot;:&quot;image/svg+xml&quot;
+    }
+  ]
+}">
+
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div id="onboarding">
+  <div class="ob-logo">🥛 Doodh<span>Khata</span></div>
+  <div class="ob-tag">Simple milk ledger for local milkmen</div>
+  <h2>Who are you?</h2>
+  <p>Pick your role. You can switch anytime from the header.</p>
+  <div class="ob-choice">
+    <button class="ob-btn seller" onclick="finishOnboarding('seller')">
+      <span class="ob-icon">🧑‍🌾</span>
+      <span class="ob-txt">I'm the Milkman (Seller)
+        <span class="ob-sub">Manage buyers · mark deliveries · bills</span>
+      </span>
+    </button>
+    <button class="ob-btn buyer" onclick="finishOnboarding('buyer')">
+      <span class="ob-icon">🏠</span>
+      <span class="ob-txt">I'm a Customer (Buyer)
+        <span class="ob-sub">View my milk records and bills</span>
+      </span>
+    </button>
+  </div>
+  <div class="ob-reset" onclick="resetOnboarding()">↩ Reset / Switch role</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+<div class="header">
+  <div class="header-top">
+    <div><div class="logo">🥛 Doodh<span>Khata</span></div><div class="header-sub" id="headerSub">Milk Ledger</div></div>
+    <div class="role-badge" onclick="resetOnboarding()">👤 <span id="roleBadge">Seller</span> ↩</div>
+  </div>
+</div>
+
+<div class="nav-tabs" id="sellerNav">
+  <button class="nav-tab active" onclick="showPage('today')"><span class="ti">📋</span>Today</button>
+  <button class="nav-tab" onclick="showPage('buyers')"><span class="ti">👥</span>Buyers</button>
+  <button class="nav-tab" onclick="showPage('bills')"><span class="ti">🧾</span>Bills</button>
+  <button class="nav-tab" onclick="showPage('logs')"><span class="ti">📊</span>Logs</button>
+  <button class="nav-tab" onclick="showPage('settings')"><span class="ti">⚙️</span>Settings</button>
+</div>
+<div class="nav-tabs" id="buyerNav" style="display:none">
+  <button class="nav-tab active" onclick="showBPage('bdash')"><span class="ti">🏠</span>My Milk</button>
+  <button class="nav-tab" onclick="showBPage('bbills')"><span class="ti">🧾</span>Bills</button>
+  <button class="nav-tab" onclick="showBPage('blogs')"><span class="ti">📋</span>Log</button>
+</div>
+
+<!-- TODAY -->
+<div class="page" id="page-today" style="display:block">
+
+  <!-- Date header: shows current viewing date, with calendar toggle -->
+  <div class="today-hdr" id="todayHdr">
+    <div class="today-hdr-left">
+      <div class="today-hdr-date" id="todayLbl"></div>
+      <div class="today-hdr-sub" id="todayModeBadge"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="btn btn-sm" id="backToTodayBtn" onclick="jumpToToday()" style="display:none;background:#FFF3CD;color:#856404;border:1px solid #f0d060;font-size:11px">↩ Back to Today</button>
+      <button class="btn btn-outline btn-sm" id="calToggleBtn" onclick="toggleCalendar()" style="font-size:12px">📅</button>
+    </div>
+  </div>
+
+  <!-- Inline calendar (hidden by default, slides in) -->
+  <div id="calBanner" style="display:none;margin-bottom:9px">
+    <div class="cal-banner">
+      <div class="cal-hdr">
+        <button class="cal-nav" onclick="calPrevMonth()">‹</button>
+        <span class="cal-month-lbl" id="calMonthLbl"></span>
+        <button class="cal-nav" onclick="calNextMonth()">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#D4EDDA"></div>Delivered</div>
+        <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#FEE2E2"></div>Skipped</div>
+        <div class="cal-leg-item"><div class="cal-leg-dot" style="background:white;border:2px solid var(--blue-light)"></div>Selected</div>
+        <div class="cal-leg-item" style="font-size:10px;color:var(--text-muted)">Tap date to switch view</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-row" id="todaySummary"></div>
+  <div id="monthEarningsBar"></div>
+  <div class="auto-banner" id="autoBanner">
+    <div><div class="t">🚀 Auto-assumed delivered by default</div><div class="s">Tap status pill to change · 📅 switch date above</div></div>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3)" onclick="markAllDeliveredForDate()">Mark All ✅</button>
+  </div>
+
+  <div class="card"><div id="todayList"></div></div>
+</div>
+
+<!-- BUYERS -->
+<div class="page" id="page-buyers">
+  <div class="shdr"><div class="stitle">All Buyers</div><button class="btn btn-saffron btn-sm" onclick="openAddBuyer()">+ Add Buyer</button></div>
+  <div class="search-wrap">
+    <input id="buyerSearch" placeholder="🔍  Search buyer..." oninput="onSearch(this,'buyerSearch',renderBuyers)">
+    <button class="search-clear" id="buyerSearchClear" onclick="clearSearch('buyerSearch',renderBuyers)">✕</button>
+  </div>
+  <div id="buyersList"></div>
+</div>
+
+<!-- BILLS -->
+<div class="page" id="page-bills">
+  <div class="shdr"><div class="stitle">Monthly Bills</div><div style="font-size:10px;color:var(--green);font-weight:700">Auto-generated ✅</div></div>
+  <div class="search-wrap">
+    <input id="billSearch" placeholder="🔍  Search buyer..." oninput="onSearch(this,'billSearch',renderBills)">
+    <button class="search-clear" id="billSearchClear" onclick="clearSearch('billSearch',renderBills)">✕</button>
+  </div>
+  <div class="mchips" id="billChips"></div>
+  <div id="billsList"></div>
+</div>
+
+<!-- LOGS — clean list by default, buyer calendar on search -->
+<div class="page" id="page-logs">
+  <div class="shdr">
+    <div class="stitle">📊 Delivery Logs</div>
+  </div>
+  <div class="mchips" id="logChips"></div>
+  <!-- Search bar: searching a buyer shows their calendar -->
+  <div class="search-wrap" style="margin-bottom:10px">
+    <input id="logSearch" placeholder="🔍  Search buyer to see their calendar..." oninput="renderLogs()">
+    <button class="search-clear" id="logSearchClear" onclick="clearSearch('logSearch',renderLogs)">✕</button>
+  </div>
+  <div id="logContent"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="card">
+    <div class="card-title">⚙️ Your Profile</div>
+    <div class="fg"><label class="fl">Your Name</label><input class="fi" id="sName" placeholder="e.g. Ramesh Yadav" oninput="saveSetting()"></div>
+    <div class="fg"><label class="fl">Phone Number</label><input class="fi" id="sPhone" placeholder="9XXXXXXXXX" oninput="saveSetting()"></div>
+    <div class="fg"><label class="fl">Default Rate (₹ per litre)</label><input class="fi" type="number" id="sRate" placeholder="60" oninput="saveSetting()"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📤 Backup & Restore</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:11px;line-height:1.6">All data is stored <b>on this device only</b>. Export regularly. Clearing the browser will delete everything without a backup.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="exportData()">📥 Export Backup</button>
+      <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">📤 Import Backup</button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+  <div class="card">
+    <div class="card-title">⚠️ Danger Zone</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:11px;line-height:1.6">Export a backup before clearing. This permanently deletes all buyers, deliveries, and bills.</p>
+    <button class="btn btn-red" onclick="clearAllData()">🗑️ Clear All Data (Fresh Start)</button>
+  </div>
+  <div class="card">
+    <div class="card-title">ℹ️ About</div>
+    <p style="font-size:12px;color:var(--text-muted);line-height:1.7">DoodhKhata v1.0 — Built for local milkmen. No internet needed after first load.<br><br>💡 <b>Install as App:</b> Chrome → menu → "Add to Home Screen"</p>
+  </div>
+</div>
+
+<!-- BUYER PAGES -->
+<div class="page" id="page-bdash" style="padding:11px 11px 30px">
+  <div class="fg"><label class="fl">Your Name</label><select class="fi" id="bSel" onchange="renderBDash()"><option value="">-- Select --</option></select></div>
+  <div id="bDashContent"></div>
+</div>
+<div class="page" id="page-bbills" style="padding:11px 11px 30px">
+  <div class="fg"><select class="fi" id="bBillSel" onchange="renderBBills()"><option value="">-- Select --</option></select></div>
+  <div id="bBillsContent"></div>
+</div>
+<div class="page" id="page-blogs" style="padding:11px 11px 30px">
+  <div class="fg"><select class="fi" id="bLogSel" onchange="renderBLogs()"><option value="">-- Select --</option></select></div>
+  <div id="bLogsContent"></div>
+</div>
+
+<button class="fab" id="fab" onclick="fabAction()">＋</button>
+</div><!-- /app -->
+
+<!-- MODALS -->
+
+<!-- Add/Edit Buyer -->
+<div class="overlay" id="mBuyer">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('mBuyer')">✕</button>
+    <div class="modal-title" id="mBuyerTitle">Add New Buyer</div>
+    <input type="hidden" id="eBuyerId">
+    <div class="fg"><label class="fl">Buyer Name *</label><input class="fi" id="bName" placeholder="e.g. Sharma Ji"></div>
+    <div class="fg"><label class="fl">Phone (optional)</label><input class="fi" id="bPhone" placeholder="9XXXXXXXXX" type="tel"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Default Qty (L)</label><input class="fi" type="number" step="0.5" min="0.5" id="bQty" placeholder="1.0"></div>
+      <div class="fg"><label class="fl">Rate ₹/L</label><input class="fi" type="number" id="bRate" placeholder="Use default"><div class="fhint">Blank = default rate</div></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Delivery Schedule</label>
+      <select class="fi" id="bSched" onchange="toggleCustomDays()">
+        <option value="daily">Every Day</option>
+        <option value="alt_odd">Alternate Days (Odd: 1,3,5…)</option>
+        <option value="alt_even">Alternate Days (Even: 2,4,6…)</option>
+        <option value="weekdays">Weekdays Only (Mon–Fri)</option>
+        <option value="custom">Custom Days</option>
+      </select>
+    </div>
+    <div class="fg" id="customDaysWrap" style="display:none">
+      <label class="fl">Select Delivery Days</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="customDaysBtns">
+        <button type="button" class="btn btn-sm btn-grey" data-d="0">Sun</button>
+        <button type="button" class="btn btn-sm btn-grey" data-d="1">Mon</button>
+        <button type="button" class="btn btn-sm btn-grey" data-d="2">Tue</button>
+        <button type="button" class="btn btn-sm btn-grey" data-d="3">Wed</button>
+        <button type="button" class="btn btn-sm btn-grey" data-d="4">Thu</button>
+        <button type="button" class="btn btn-sm btn-grey" data-d="5">Fri</button>
+        <button type="button" class="btn btn-sm btn-grey" data-d="6">Sat</button>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Notes (optional)</label><input class="fi" id="bNotes" placeholder="e.g. Leave at door, no milk on holidays"></div>
+    <button class="btn btn-primary btn-block" onclick="saveBuyer()">💾 Save Buyer</button>
+  </div>
+</div>
+
+<!-- Buyer Detail -->
+<div class="overlay" id="mDetail"><div class="modal"><div id="detailContent"></div></div></div>
+
+<!-- Edit Delivery (past date / manual) -->
+<div class="overlay" id="mEditDel">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('mEditDel')">✕</button>
+    <div class="modal-title" id="mEditDelTitle">Edit Delivery</div>
+    <input type="hidden" id="edCustId">
+    <div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="edDate"></div>
+    <div class="fg">
+      <label class="fl">Buyer</label>
+      <select class="fi" id="edBuyerSel" onchange="prefillEditDel()"></select>
+    </div>
+    <div class="fg">
+      <label class="fl">Status</label>
+      <select class="fi" id="edStatus" onchange="toggleEdQty()">
+        <option value="delivered">✅ Delivered — Milk was given</option>
+        <option value="skipped">❌ Skipped — Milk was NOT given</option>
+      </select>
+    </div>
+    <div class="fg" id="edQtyGrp">
+      <label class="fl">Quantity (Litres)</label>
+      <input class="fi" type="number" step="0.5" min="0" id="edQty">
+    </div>
+    <div class="fg"><label class="fl">Rate (₹/L) <span style="font-size:10px;font-weight:400;color:var(--text-muted)">Only change for special delivery</span></label><input class="fi" type="number" id="edRate"></div>
+    <div class="fg"><label class="fl">Note (optional)</label><input class="fi" id="edNote" placeholder="e.g. Extra half litre, different milk"></div>
+    <button class="btn btn-primary btn-block" onclick="saveEditDel()">💾 Save</button>
+  </div>
+</div>
+
+<!-- View Bill -->
+<div class="overlay" id="mViewBill"><div class="modal"><div id="viewBillContent"></div></div></div>
+
+<!-- Partial Payment -->
+<div class="overlay" id="mPartial">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('mPartial')">✕</button>
+    <div class="modal-title">Record Payment</div>
+    <input type="hidden" id="partBillId">
+    <div style="background:var(--warm);border-radius:var(--radius-sm);padding:11px;margin-bottom:13px">
+      <div style="font-size:11px;color:var(--text-muted)">Total Bill</div>
+      <div style="font-family:'Baloo 2',sans-serif;font-size:21px;font-weight:800;color:var(--blue)" id="partTotal"></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Already paid: <b id="partPaid"></b> &nbsp;·&nbsp; Remaining: <b id="partRem" style="color:var(--red)"></b></div>
+    </div>
+    <div class="fg"><label class="fl">Amount Received (₹)</label><input class="fi" type="number" id="partAmt" placeholder="Enter amount received"></div>
+    <button class="btn btn-green btn-block" onclick="savePartial()">💰 Record Payment</button>
+  </div>
+</div>
+
+<!-- Bill Image Share -->
+<div id="shareImgModal" onclick="closeShareImg()">
+  <img id="shareImg" src="" alt="Bill Image" style="cursor:zoom-in">
+  <div class="share-hint" id="shareHintText">
+    <b>📲 Share Bill Image</b>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+    <button class="btn btn-wa" onclick="event.stopPropagation();tryNativeShare()" id="nativeShareBtn" style="display:none">📤 Share via WhatsApp</button>
+    <button class="btn btn-wa" onclick="event.stopPropagation();downloadBillImg()" id="downloadImgBtn">📥 Save Image</button>
+    <button class="btn btn-grey" onclick="closeShareImg()">Close</button>
+  </div>
+  <div style="color:rgba(255,255,255,0.5);font-size:11px;margin-top:6px;text-align:center" id="shareSubHint">Save the image → open WhatsApp → share as attachment</div>
+</div>
+
+<!-- Confirm -->
+<div id="confirmBox">
+  <div class="confirm-inner">
+    <div class="confirm-icon" id="cIcon">⚠️</div>
+    <div class="confirm-title" id="cTitle"></div>
+    <div class="confirm-msg" id="cMsg"></div>
+    <div class="confirm-btns">
+      <button class="btn btn-grey btn-sm" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-sm" id="cOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Hidden canvas for bill image generation -->
+<canvas id="billCanvas" style="display:none"></canvas>
+
+<script>
+// ══════════════════ DATA ══════════════════
+const DB_KEY='dw_v3';
+let db={settings:{name:'',phone:'',defaultRate:60,role:null},customers:[],deliveries:[],bills:[]};
+function loadDB(){try{const s=localStorage.getItem(DB_KEY);if(s)db=JSON.parse(s);}catch(e){}}
+function saveDB(){localStorage.setItem(DB_KEY,JSON.stringify(db));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,5);}
+function todayStr(){return new Date().toISOString().split('T')[0];}
+
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+// ══════════════════ ONBOARDING ══════════════════
+function finishOnboarding(role){db.settings.role=role;saveDB();launchApp(role);}
+function resetOnboarding(){
+  if(!confirm('Switch role? You\'ll go back to the start screen.'))return;
+  db.settings.role=null;saveDB();
+  document.getElementById('onboarding').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+function launchApp(role){
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('roleBadge').textContent=role==='seller'?'Seller':'Buyer';
+  document.getElementById('headerSub').textContent=role==='seller'?'Seller Dashboard':'Buyer View';
+  document.getElementById('sellerNav').style.display=role==='seller'?'flex':'none';
+  document.getElementById('buyerNav').style.display=role==='buyer'?'flex':'none';
+  document.getElementById('fab').style.display=role==='seller'?'flex':'none';
+  if(role==='seller'){showPage('today');}
+  else{showBPage('bdash');populateBuyerSelects();}
+}
+
+// ══════════════════ NAV ══════════════════
+const SELLER_PAGES=['today','buyers','bills','logs','settings'];
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.getElementById('page-'+name).style.display='block';
+  document.querySelectorAll('#sellerNav .nav-tab').forEach((t,i)=>t.classList.toggle('active',SELLER_PAGES[i]===name));
+  if(name==='today')renderToday();
+  if(name==='buyers')renderBuyers();
+  if(name==='bills')initBillsPage();
+  if(name==='logs')initLogsPage();
+  if(name==='settings')loadSettings();
+}
+function showBPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.getElementById('page-'+name).style.display='block';
+  ['bdash','bbills','blogs'].forEach((n,i)=>document.querySelectorAll('#buyerNav .nav-tab')[i].classList.toggle('active',n===name));
+}
+
+// ══════════════════ SEARCH WITH CLEAR ══════════════════
+function onSearch(input,id,renderFn){
+  const clearBtn=document.getElementById(id+'Clear');
+  if(clearBtn) clearBtn.classList.toggle('visible',input.value.length>0);
+  renderFn();
+}
+function clearSearch(id,renderFn){
+  const inp=document.getElementById(id);
+  inp.value='';
+  const clearBtn=document.getElementById(id+'Clear');
+  if(clearBtn) clearBtn.classList.remove('visible');
+  renderFn();
+}
+
+// ══════════════════ SCHEDULE ══════════════════
+function shouldDeliver(cust,ds){
+  const d=new Date(ds+'T00:00:00');const day=d.getDay(),dt=d.getDate();
+  switch(cust.schedule){
+    case 'daily':return true;case 'alt_odd':return dt%2===1;case 'alt_even':return dt%2===0;
+    case 'weekdays':return day>=1&&day<=5;case 'custom':return(cust.customDays||[]).includes(day);default:return true;
+  }
+}
+function schedLabel(c){
+  const m={daily:'Daily',alt_odd:'Alt (odd)',alt_even:'Alt (even)',weekdays:'Weekdays'};
+  if(c.schedule==='custom')return'Custom: '+(c.customDays||[]).map(d=>DAYS[d]).join(',');
+  return m[c.schedule]||'Daily';
+}
+
+// ══════════════════ HELPERS ══════════════════
+function getDel(custId,ds){return db.deliveries.find(d=>d.customerId===custId&&d.date===ds);}
+function effRate(c){return c.rate||db.settings.defaultRate||60;}
+function getMonthDels(custId,mo,yr){
+  return db.deliveries.filter(d=>{
+    if(d.customerId!==custId)return false;
+    const dt=new Date(d.date+'T00:00:00');return dt.getMonth()===mo&&dt.getFullYear()===yr;
+  });
+}
+function totalDue(custId){
+  // Only count bills that were explicitly generated by the seller
+  return db.bills
+    .filter(b=>b.customerId===custId&&b.generatedAt&&b.status!=='paid')
+    .reduce((s,b)=>s+Math.max(0,billRem(b)),0);
+}
+function billRem(b){return b.totalDue-(b.amountPaid||0);}
+function fmtDate(ds){const d=new Date(ds+'T00:00:00');return`${d.getDate()} ${MONTHS[d.getMonth()].substr(0,3)} (${DAYS[d.getDay()]})`;}
+
+// ══════════════════ DATE-AWARE TODAY ══════════════════
+let _viewDate=todayStr(); // the date the Today tab is currently showing
+let _calOpen=false;
+
+function jumpToToday(){
+  _viewDate=todayStr();
+  calYear=new Date().getFullYear();
+  calMonth=new Date().getMonth();
+  if(_calOpen)renderCalendar();
+  renderToday();
+}
+
+function toggleCalendar(){
+  _calOpen=!_calOpen;
+  const banner=document.getElementById('calBanner');
+  const btn=document.getElementById('calToggleBtn');
+  if(_calOpen){
+    banner.style.display='block';
+    btn.style.background='var(--warm)';
+    renderCalendar();
+  } else {
+    banner.style.display='none';
+    btn.style.background='';
+  }
+}
+
+// ══════════════════ CALENDAR ══════════════════
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+
+function renderCalendar(){
+  const now=new Date();
+  document.getElementById('calMonthLbl').textContent=`${MONTHS[calMonth].substr(0,3)} ${calYear}`;
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayS=todayStr();
+
+  // aggregate delivery status for all customers per day
+  const dayStatus={};
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dels=db.deliveries.filter(del=>del.date===ds);
+    if(!dels.length){dayStatus[d]='none';}
+    else if(dels.some(d=>d.status==='delivered')&&dels.some(d=>d.status==='skipped')){dayStatus[d]='mixed';}
+    else if(dels.every(d=>d.status==='delivered')){dayStatus[d]='delivered';}
+    else{dayStatus[d]='skipped';}
+  }
+
+  let html='';
+  DAYS.forEach(d=>html+=`<div class="cal-dow">${d[0]}</div>`);
+  for(let i=0;i<firstDay;i++) html+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isFuture=ds>todayS;
+    const isSelected=ds===_viewDate;
+    const isToday=ds===todayS;
+    let cls='cal-day';
+    if(isFuture)cls+=' future';
+    else if(isSelected)cls+=' selected';
+    else if(isToday)cls+=' today';
+    else if(dayStatus[d]==='delivered')cls+=' delivered';
+    else if(dayStatus[d]==='skipped')cls+=' skipped';
+    else if(dayStatus[d]==='mixed')cls+=' delivered';
+
+    const onclick=isFuture?'':`onclick="switchViewDate('${ds}')"`;
+    html+=`<div class="${cls}" ${onclick}>${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+function switchViewDate(ds){
+  _viewDate=ds;
+  renderCalendar(); // update selected highlight
+  renderToday();
+  // auto-close calendar after selection on small screens
+  if(window.innerWidth<480){
+    setTimeout(()=>{
+      _calOpen=false;
+      document.getElementById('calBanner').style.display='none';
+      document.getElementById('calToggleBtn').style.background='';
+    },300);
+  }
+}
+
+function calPrevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNextMonth(){
+  const now=new Date();
+  if(calYear>now.getFullYear()||(calYear===now.getFullYear()&&calMonth>=now.getMonth()))return;
+  calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();
+}
+
+// ══════════════════ TODAY ══════════════════
+function renderToday(){
+  const ds=_viewDate;
+  const isToday=ds===todayStr();
+  const d=new Date(ds+'T00:00:00');
+
+  // Header
+  const hdr=document.getElementById('todayHdr');
+  document.getElementById('todayLbl').textContent=`${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()].substr(0,3)} ${d.getFullYear()}`;
+  const badge=document.getElementById('todayModeBadge');
+  const backBtn=document.getElementById('backToTodayBtn');
+  const autoBanner=document.getElementById('autoBanner');
+
+  if(isToday){
+    hdr.classList.remove('past-mode');
+    badge.textContent='Today';
+    backBtn.style.display='none';
+    autoBanner.style.display='flex';
+  } else {
+    hdr.classList.add('past-mode');
+    badge.textContent='Viewing past date — tap to edit';
+    backBtn.style.display='inline-flex';
+    autoBanner.style.display='none';
+  }
+
+  const active=db.customers.filter(c=>shouldDeliver(c,ds));
+  let delivered=0,skipped=0,unset=0,totalAmt=0;
+  active.forEach(c=>{
+    const del=getDel(c.id,ds);
+    if(del&&del.status==='delivered'){delivered++;totalAmt+=del.qty*effRate(c);}
+    else if(del&&del.status==='skipped')skipped++;
+    else unset++; // no record yet — neither past nor today assumed
+  });
+
+  document.getElementById('todaySummary').innerHTML=`
+    <div class="sbox"><div class="n">${active.length}</div><div class="l">Due</div></div>
+    <div class="sbox g"><div class="n">${delivered}</div><div class="l">Done</div></div>
+    <div class="sbox r"><div class="n">${skipped}</div><div class="l">Skipped</div></div>
+    <div class="sbox o"><div class="n">${unset}</div><div class="l">${isToday?'Pending':'Not Set'}</div></div>`;
+
+  // Monthly earnings bar (only when viewing today)
+  const earBar=document.getElementById('monthEarningsBar');
+  if(isToday){
+    const now2=new Date();
+    const monthDays=new Date(now2.getFullYear(),now2.getMonth()+1,0).getDate();
+    const dayOfMonth=now2.getDate();
+    // Only count explicitly marked deliveries — no auto-assumption
+    let monthAmt=0;
+    db.customers.forEach(c=>{
+      getMonthDels(c.id,now2.getMonth(),now2.getFullYear())
+        .filter(d=>d.status==='delivered')
+        .forEach(d=>monthAmt+=d.qty*effRate(c));
+    });
+    const pct=Math.round((dayOfMonth/monthDays)*100);
+    earBar.innerHTML=`<div class="card" style="margin-bottom:9px;padding:10px 12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:11px;color:var(--text-muted);font-weight:600">${MONTHS[now2.getMonth()]} Earnings</span>
+        <span style="font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--green)">~₹${monthAmt.toFixed(0)}</span>
+      </div>
+      <div style="background:var(--border);border-radius:6px;height:6px;overflow:hidden">
+        <div style="background:var(--green);height:100%;width:${pct}%;border-radius:6px"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:3px">Day ${dayOfMonth} of ${monthDays} · ${pct}% of month done</div>
+    </div>`;
+  } else {
+    earBar.innerHTML='';
+  }
+
+  const list=document.getElementById('todayList');
+  if(!db.customers.length){
+    list.innerHTML=`<div class="empty"><div class="ei">👥</div><h3>No Buyers Yet</h3><p>Go to Buyers tab to add customers</p></div>`;
+    return;
+  }
+
+  list.innerHTML=db.customers.map(c=>{
+    const delivering=shouldDeliver(c,ds);
+    const del=getDel(c.id,ds);
+    const rate=effRate(c);
+    const qty=del?del.qty:c.defaultQty;
+    // status: explicit record → use it. No record + today → pending. No record + past → 'unset'
+    const status=del?del.status:(delivering?(isToday?'pending':'unset'):'off');
+    const amt=(status==='delivered')?(qty*rate):0;
+    const avatarCls=status==='delivered'?'green':status==='skipped'?'red':'';
+
+    let pill;
+    if(!delivering){
+      pill=`<span class="status-pill off">Off</span>`;
+    } else if(status==='delivered'){
+      pill=`<span class="status-pill delivered" onclick="cycleStatus('${c.id}','${ds}')">✅ Delivered</span>`;
+    } else if(status==='skipped'){
+      pill=`<span class="status-pill skipped" onclick="cycleStatus('${c.id}','${ds}')">❌ Skipped</span>`;
+    } else if(status==='pending'){
+      pill=`<span class="status-pill pending" onclick="cycleStatus('${c.id}','${ds}')">⏳ Confirm</span>`;
+    } else {
+      // unset past date — show a neutral "Mark" button, no auto-assumption
+      pill=`<span class="status-pill unset" onclick="cycleStatus('${c.id}','${ds}')">+ Mark</span>`;
+    }
+
+    const showQty=status==='delivered'||status==='pending'||(status==='unset'&&delivering);
+    const metaText=!delivering?schedLabel(c):
+      status==='delivered'?`${qty}L × ₹${rate} = <b style="color:var(--blue-mid)">₹${amt.toFixed(0)}</b>${del&&del.note?` · <i>${del.note}</i>`:''}`:
+      status==='unset'?`<span style="color:var(--text-muted)">Not marked — tap to record</span>`:
+      `${c.defaultQty}L × ₹${rate} = ₹${(c.defaultQty*rate).toFixed(0)}`;
+
+    return `<div class="del-row">
+      <div class="avatar ${avatarCls}">${c.name[0].toUpperCase()}</div>
+      <div class="del-info">
+        <div class="del-name">${c.name}</div>
+        <div class="del-meta">${metaText}</div>
+      </div>
+      <div class="del-right">
+        ${delivering&&status==='delivered'?`<div class="qty-row">
+          <button class="qbtn" onclick="adjQty('${c.id}','${ds}',-0.5)">−</button>
+          <span class="qval">${qty}</span><span class="qunit">L</span>
+          <button class="qbtn" onclick="adjQty('${c.id}','${ds}',+0.5)">+</button>
+        </div>`:''}
+        ${pill}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function cycleStatus(custId,ds){
+  const c=db.customers.find(c=>c.id===custId);
+  let del=getDel(custId,ds);
+  if(!del){del={id:uid(),customerId:custId,date:ds,status:'delivered',qty:c.defaultQty,rate:effRate(c),rateOverride:false,note:''};db.deliveries.push(del);}
+  else if(del.status==='pending'||del.status==='skipped'){del.status='delivered';if(!del.qty)del.qty=c.defaultQty;del.rateOverride=false;}
+  else{del.status='skipped';}
+  saveDB();renderToday();if(_calOpen)renderCalendar();
+}
+function adjQty(custId,ds,delta){
+  const c=db.customers.find(c=>c.id===custId);
+  let del=getDel(custId,ds);
+  if(!del){del={id:uid(),customerId:custId,date:ds,status:'delivered',qty:c.defaultQty,rate:effRate(c),rateOverride:false,note:''};db.deliveries.push(del);}
+  del.qty=Math.max(0.5,parseFloat((del.qty+delta).toFixed(1)));del.status='delivered';
+  saveDB();renderToday();
+}
+function markAllDeliveredForDate(){
+  const ds=_viewDate;
+  db.customers.forEach(c=>{
+    if(!shouldDeliver(c,ds))return;
+    let del=getDel(c.id,ds);
+    if(!del){db.deliveries.push({id:uid(),customerId:c.id,date:ds,status:'delivered',qty:c.defaultQty,rate:effRate(c),rateOverride:false,note:''});}
+    else if(del.status!=='delivered'){del.status='delivered';if(!del.qty)del.qty=c.defaultQty;}
+  });
+  saveDB();renderToday();if(_calOpen)renderCalendar();toast('All marked ✅');
+}
+// legacy alias
+function markAllDelivered(){markAllDeliveredForDate();}
+
+function prefillEditDel(){
+  const custId=document.getElementById('edBuyerSel').value;
+  const date=document.getElementById('edDate').value;
+  if(!custId||!date)return;
+  const c=db.customers.find(c=>c.id===custId);
+  const del=getDel(custId,date);
+  const currentRate=effRate(c);
+  document.getElementById('edCustId').value=custId;
+  document.getElementById('edStatus').value=del?del.status:'delivered';
+  document.getElementById('edQty').value=del?del.qty:c.defaultQty;
+  // Show current buyer rate by default; only show stored rate if it was a deliberate override
+  document.getElementById('edRate').value=(del&&del.rateOverride)?del.rate:currentRate;
+  document.getElementById('edNote').value=del?del.note:'';
+  toggleEdQty();
+}
+
+// ══════════════════ BUYERS ══════════════════
+function renderBuyers(){
+  const q=(document.getElementById('buyerSearch').value||'').toLowerCase();
+  const list=document.getElementById('buyersList');
+  const filtered=db.customers.filter(c=>!q||c.name.toLowerCase().includes(q));
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty"><div class="ei">👥</div><h3>${q?'No results':'No Buyers Yet'}</h3><p>${q?'Try a different name':'Tap "+ Add Buyer" to get started'}</p></div>`;
+    return;
+  }
+  const now=new Date();
+  list.innerHTML=filtered.map(c=>{
+    const rate=effRate(c);
+    const mDels=computeMonthDels(c.id,now.getMonth(),now.getFullYear()).filter(d=>d.status==='delivered');
+    const mAmt=mDels.reduce((s,d)=>s+d.qty*d.rate,0);
+    const due=totalDue(c.id);
+    return`<div class="cust-card" onclick="openDetail('${c.id}')">
+      <div class="avatar">${c.name[0].toUpperCase()}</div>
+      <div class="cust-info">
+        <div class="cust-name">${c.name}</div>
+        <div class="cust-meta">${c.defaultQty}L/day · ₹${rate}/L · ${schedLabel(c)}</div>
+        <div class="cust-meta" style="color:var(--blue-mid)">This month: ₹${mAmt.toFixed(0)}</div>
+      </div>
+      <div class="cust-amt">
+        <div class="due-amt ${due===0?'clear':''}">₹${due.toFixed(0)}</div>
+        <div class="due-lbl">${due===0?'All Clear ✅':'Due'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddBuyer(){
+  document.getElementById('mBuyerTitle').textContent='Add New Buyer';
+  document.getElementById('eBuyerId').value='';
+  ['bName','bPhone','bQty','bRate','bNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bQty').value='1';document.getElementById('bSched').value='daily';
+  document.querySelectorAll('#customDaysBtns button').forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-grey');});
+  toggleCustomDays();openModal('mBuyer');
+}
+function toggleCustomDays(){document.getElementById('customDaysWrap').style.display=document.getElementById('bSched').value==='custom'?'block':'none';}
+document.getElementById('customDaysBtns').addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-d]');if(!btn)return;
+  btn.classList.toggle('btn-primary');btn.classList.toggle('btn-grey');
+});
+function saveBuyer(){
+  const name=document.getElementById('bName').value.trim();
+  if(!name){toast('Please enter buyer name');return;}
+  const sched=document.getElementById('bSched').value;
+  const customDays=sched==='custom'?[...document.querySelectorAll('#customDaysBtns button.btn-primary')].map(b=>parseInt(b.dataset.d)):[];
+  if(sched==='custom'&&!customDays.length){toast('Select at least one day');return;}
+  const qty=parseFloat(document.getElementById('bQty').value)||1;
+  const obj={name,phone:document.getElementById('bPhone').value.trim(),defaultQty:qty,
+    rate:parseFloat(document.getElementById('bRate').value)||null,schedule:sched,customDays,
+    notes:document.getElementById('bNotes').value.trim()};
+  const id=document.getElementById('eBuyerId').value;
+  if(id){Object.assign(db.customers.find(c=>c.id===id),obj);toast('Buyer updated ✅');}
+  else{db.customers.push({id:uid(),...obj,createdAt:new Date().toISOString()});toast('Buyer added ✅');}
+  saveDB();closeModal('mBuyer');renderBuyers();
+}
+function openDetail(custId){
+  const c=db.customers.find(c=>c.id===custId);
+  const rate=effRate(c);const due=totalDue(custId);
+  const now=new Date();
+  const mDels=computeMonthDels(custId,now.getMonth(),now.getFullYear()).filter(d=>d.status==='delivered');
+  const mAmt=mDels.reduce((s,d)=>s+d.qty*d.rate,0);
+  const dels=db.deliveries.filter(d=>d.customerId===custId).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+  document.getElementById('detailContent').innerHTML=`
+    <button class="modal-close" onclick="closeModal('mDetail')">✕</button>
+    <div class="modal-title">${c.name}</div>
+    <div style="background:var(--warm);border-radius:var(--radius-sm);padding:10px;margin-bottom:11px">
+      ${c.phone?`<div class="profile-row"><span style="font-size:12px;color:var(--text-muted)">📞 Phone</span><b>${c.phone}</b></div>`:''}
+      <div class="profile-row"><span style="font-size:12px;color:var(--text-muted)">🥛 Qty</span><b>${c.defaultQty}L/day</b></div>
+      <div class="profile-row"><span style="font-size:12px;color:var(--text-muted)">💰 Rate</span><b>₹${rate}/L</b></div>
+      <div class="profile-row"><span style="font-size:12px;color:var(--text-muted)">📅 Schedule</span><b>${schedLabel(c)}</b></div>
+      ${c.notes?`<div class="profile-row"><span style="font-size:12px;color:var(--text-muted)">📝 Note</span><b>${c.notes}</b></div>`:''}
+      <div class="profile-row"><span style="font-size:12px;color:var(--text-muted)">📊 This month</span><b style="color:var(--green)">₹${mAmt.toFixed(0)}</b></div>
+      <div class="profile-row" style="border-bottom:none"><span style="font-size:12px;color:var(--text-muted)">💸 Total Due</span>
+        <b style="color:${due>0?'var(--saffron)':'var(--green)'};font-size:15px">₹${due.toFixed(0)}</b></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px">
+      <button class="btn btn-primary btn-sm" onclick="editBuyer('${custId}')">✏️ Edit</button>
+      <button class="btn btn-saffron btn-sm" onclick="openEditDelForBuyer('${custId}','')">+ Edit Delivery</button>
+      <button class="btn btn-red btn-sm" onclick="deleteBuyer('${custId}')">🗑️ Delete</button>
+    </div>
+    <div class="card-title">Last 10 Deliveries</div>
+    ${dels.length?`<div style="overflow-x:auto"><table class="tbl">
+      <tr><th>Date</th><th>Status</th><th>Qty</th><th>₹</th><th></th></tr>
+      ${dels.map(d=>`<tr>
+        <td>${fmtDate(d.date)}</td><td>${d.status==='delivered'?'✅':'❌'}</td>
+        <td>${d.status==='delivered'?d.qty+'L':'—'}</td>
+        <td class="amt">${d.status==='delivered'?'₹'+(d.qty*d.rate).toFixed(0):'—'}</td>
+        <td><button class="btn btn-xs btn-outline" onclick="openEditDelForBuyer('${custId}','${d.date}')">✏️</button></td>
+      </tr>`).join('')}
+    </table></div>`:`<p style="font-size:12px;color:var(--text-muted)">No deliveries yet.</p>`}`;
+  openModal('mDetail');
+}
+function editBuyer(id){
+  const c=db.customers.find(c=>c.id===id);
+  document.getElementById('mBuyerTitle').textContent='Edit Buyer';
+  document.getElementById('eBuyerId').value=id;
+  document.getElementById('bName').value=c.name;
+  document.getElementById('bPhone').value=c.phone||'';
+  document.getElementById('bQty').value=c.defaultQty;
+  document.getElementById('bRate').value=c.rate||'';
+  document.getElementById('bSched').value=c.schedule||'daily';
+  document.getElementById('bNotes').value=c.notes||'';
+  document.querySelectorAll('#customDaysBtns button').forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-grey');});
+  if(c.schedule==='custom')c.customDays?.forEach(day=>{
+    const b=document.querySelector(`#customDaysBtns [data-d="${day}"]`);
+    if(b){b.classList.add('btn-primary');b.classList.remove('btn-grey');}
+  });
+  toggleCustomDays();closeModal('mDetail');openModal('mBuyer');
+}
+function deleteBuyer(id){
+  closeModal('mDetail');
+  confirmDialog('🗑️','Delete Buyer?','All deliveries and bills for this buyer will be permanently deleted.','Delete','btn-red',()=>{
+    db.customers=db.customers.filter(c=>c.id!==id);
+    db.deliveries=db.deliveries.filter(d=>d.customerId!==id);
+    db.bills=db.bills.filter(b=>b.customerId!==id);
+    saveDB();renderBuyers();toast('Buyer deleted');
+  });
+}
+
+// ══════════════════ EDIT DELIVERY ══════════════════
+function openEditDelForBuyer(custId,ds){
+  const date=ds||todayStr();
+  document.getElementById('mEditDelTitle').textContent=`Edit Delivery — ${fmtDate(date)}`;
+  document.getElementById('edDate').value=date;
+  const sel=document.getElementById('edBuyerSel');
+  sel.innerHTML=db.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sel.value=custId;
+  document.getElementById('edCustId').value=custId;
+  prefillEditDel();
+  closeModal('mDetail');openModal('mEditDel');
+}
+function toggleEdQty(){document.getElementById('edQtyGrp').style.display=document.getElementById('edStatus').value==='delivered'?'block':'none';}
+function saveEditDel(){
+  const custId=document.getElementById('edBuyerSel').value||document.getElementById('edCustId').value;
+  const date=document.getElementById('edDate').value;
+  if(!custId||!date){toast('Select buyer and date');return;}
+  const status=document.getElementById('edStatus').value;
+  const qty=parseFloat(document.getElementById('edQty').value)||0;
+  const enteredRate=parseFloat(document.getElementById('edRate').value)||(db.settings.defaultRate||60);
+  const note=document.getElementById('edNote').value.trim();
+  const c=db.customers.find(c=>c.id===custId);
+  const currentRate=effRate(c);
+  // Only mark as rateOverride if seller deliberately changed it from the buyer's current rate
+  const rateOverride=Math.abs(enteredRate-currentRate)>0.01;
+  const rate=rateOverride?enteredRate:currentRate;
+  let del=getDel(custId,date);
+  if(del){del.status=status;del.qty=qty;del.rate=rate;del.rateOverride=rateOverride;del.note=note;del.date=date;}
+  else db.deliveries.push({id:uid(),customerId:custId,date,status,qty,rate,rateOverride,note});
+  saveDB();
+  refreshExistingBills();
+  closeModal('mEditDel');
+  renderToday();
+  if(document.getElementById('page-logs').style.display!=='none')renderLogs();
+  if(document.getElementById('page-bills').style.display!=='none')renderBills();
+  toast('Delivery saved ✅');
+}
+
+// ══════════════════ BILLS ══════════════════
+// Compute effective deliveries for a customer in a month.
+// Includes auto-deliveries (days with no explicit record but shouldDeliver=true).
+function computeMonthDels(custId,mo,yr){
+  const todayS=todayStr();
+  const daysInMonth=new Date(yr,mo+1,0).getDate();
+  const result=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(ds>todayS)continue;
+    const c=db.customers.find(x=>x.id===custId);
+    if(!c)continue;
+    const currentRate=effRate(c);
+    const explicit=db.deliveries.find(x=>x.customerId===custId&&x.date===ds);
+    if(explicit){
+      // Only respect stored rate if seller deliberately overrode it
+      const resolvedRate=explicit.rateOverride?explicit.rate:currentRate;
+      result.push({...explicit,rate:resolvedRate});
+    }
+    // Past dates with no explicit record = not entered yet. Don't assume delivered.
+    // Today with no record = still pending (handled in renderToday separately).
+  }
+  return result;
+}
+
+// Carry-forward: only from bills explicitly generated by seller (have generatedAt set).
+// Never auto-accumulate from months the seller never touched.
+function getCarryFwd(custId,mo,yr){
+  const thisDate=new Date(yr,mo,1);
+  return db.bills
+    .filter(b=>b.customerId===custId && b.generatedAt && b.status!=='paid')
+    .filter(b=>new Date(b.year,b.month,1)<thisDate)
+    .reduce((s,b)=>s+Math.max(0,billRem(b)),0);
+}
+
+// Refresh an existing bill's computed fields without changing payment data.
+// Only called when bill already exists (was explicitly generated).
+function refreshBill(bill){
+  const c=db.customers.find(x=>x.id===bill.customerId);
+  if(!c)return;
+  const allDels=computeMonthDels(bill.customerId,bill.month,bill.year);
+  const delivered=allDels.filter(d=>d.status==='delivered');
+  const subtotal=delivered.reduce((s,d)=>s+d.qty*d.rate,0);
+  const carry=getCarryFwd(bill.customerId,bill.month,bill.year);
+  const totalDueAmt=subtotal+carry;
+  bill.deliveries=delivered;
+  bill.subtotal=subtotal;
+  bill.carryForward=carry;
+  bill.totalDue=totalDueAmt;
+  if((bill.amountPaid||0)>=totalDueAmt&&totalDueAmt>0)bill.status='paid';
+  else if((bill.amountPaid||0)>0)bill.status='partial';
+  else bill.status='pending';
+}
+
+// Generate a bill for a customer+month — only call when seller explicitly requests it.
+function generateBill(custId,mo,yr){
+  const existing=db.bills.find(b=>b.customerId===custId&&b.month===mo&&b.year===yr);
+  if(existing){refreshBill(existing);saveDB();return existing;}
+  const allDels=computeMonthDels(custId,mo,yr);
+  const delivered=allDels.filter(d=>d.status==='delivered');
+  const subtotal=delivered.reduce((s,d)=>s+d.qty*d.rate,0);
+  const carry=getCarryFwd(custId,mo,yr);
+  const totalDueAmt=subtotal+carry;
+  if(!delivered.length&&carry===0)return null;
+  const bill={id:uid(),customerId:custId,month:mo,year:yr,deliveries:delivered,subtotal,
+    carryForward:carry,totalDue:totalDueAmt,amountPaid:0,status:'pending',
+    generatedAt:new Date().toISOString(),paidAt:null};
+  db.bills.push(bill);
+  saveDB();
+  return bill;
+}
+
+// Refresh all already-generated bills (don't create new ones).
+function refreshExistingBills(){
+  db.bills.forEach(b=>refreshBill(b));
+  saveDB();
+}
+let _billMonth='';
+function initBillsPage(){
+  // Only refresh bills that already exist — never auto-create.
+  refreshExistingBills();
+  const now=new Date();
+  const ms=new Set();
+  db.bills.forEach(b=>ms.add(`${b.year}-${b.month}`));
+  ms.add(`${now.getFullYear()}-${now.getMonth()}`);
+  const months=[...ms].sort().reverse().slice(0,6);
+  if(!_billMonth||!months.includes(_billMonth))_billMonth=months[0]||`${now.getFullYear()}-${now.getMonth()}`;
+  document.getElementById('billChips').innerHTML=months.map(m=>{
+    const[y,mo]=m.split('-');
+    return`<div class="mchip ${m===_billMonth?'active':''}" onclick="selBillMonth(this,'${m}')">${MONTHS[parseInt(mo)].substr(0,3)} ${y}</div>`;
+  }).join('');
+  renderBills();
+}
+function selBillMonth(el,m){document.querySelectorAll('#billChips .mchip').forEach(c=>c.classList.remove('active'));el.classList.add('active');_billMonth=m;renderBills();}
+function renderBills(){
+  const q=(document.getElementById('billSearch').value||'').toLowerCase();
+  const[yr,mo]=(_billMonth||`${new Date().getFullYear()}-${new Date().getMonth()}`).split('-');
+  const moInt=parseInt(mo),yrInt=parseInt(yr);
+  const q2=q;
+
+  // Show existing bills for this month
+  let bills=db.bills.filter(b=>b.month===moInt&&b.year===yrInt);
+  if(q2)bills=bills.filter(b=>{const c=db.customers.find(c=>c.id===b.customerId);return c&&c.name.toLowerCase().includes(q2);});
+  bills.sort((a,b)=>billRem(b)-billRem(a));
+
+  // Customers without a bill this month (eligible to generate)
+  const billedIds=new Set(bills.map(b=>b.customerId));
+  let unbilled=db.customers.filter(c=>!billedIds.has(c.id));
+  if(q2)unbilled=unbilled.filter(c=>c.name.toLowerCase().includes(q2));
+
+  const list=document.getElementById('billsList');
+
+  // "Generate All" header if any customers don't have a bill yet
+  const now=new Date();
+  const isCurrentMonth=moInt===now.getMonth()&&yrInt===now.getFullYear();
+  let headerHtml='';
+  if(unbilled.length&&!q2){
+    headerHtml=`<div class="card" style="border:2px dashed var(--saffron);background:#FFFBF0;margin-bottom:10px;padding:12px">
+      <div style="font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;color:var(--saffron);margin-bottom:8px">
+        📋 ${unbilled.length} buyer${unbilled.length>1?'s':''} not yet billed for ${MONTHS[moInt]} ${yrInt}
+      </div>
+      ${unbilled.map(c=>{
+        const dels=computeMonthDels(c.id,moInt,yrInt).filter(d=>d.status==='delivered');
+        const amt=dels.reduce((s,d)=>s+d.qty*d.rate,0);
+        return`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <span style="font-weight:600;font-size:13px">${c.name}</span>
+            <span style="font-size:11px;color:var(--text-muted);margin-left:6px">${dels.length} days · ₹${amt.toFixed(0)}</span>
+          </div>
+          <button class="btn btn-saffron btn-sm" onclick="genOneBill('${c.id}',${moInt},${yrInt})">Generate</button>
+        </div>`;
+      }).join('')}
+      <button class="btn btn-saffron" style="margin-top:10px;width:100%" onclick="genAllBills(${moInt},${yrInt})">⚡ Generate All Bills</button>
+    </div>`;
+  }
+
+  if(!bills.length&&!headerHtml){
+    list.innerHTML=`<div class="empty"><div class="ei">🧾</div><h3>No Bills for ${MONTHS[moInt]}</h3><p>No bills generated yet. Add delivery data then tap "Generate All Bills".</p></div>`;
+    return;
+  }
+
+  list.innerHTML=headerHtml+bills.map(b=>{
+    const c=db.customers.find(c=>c.id===b.customerId);const rem=billRem(b);
+    const sc=b.status==='paid'?'paid':b.status==='partial'?'partial':'pending';
+    const st=b.status==='paid'?'✅ Paid':b.status==='partial'?'⏳ Partial':'🔴 Unpaid';
+    return`<div class="bill-card">
+      <div class="bill-hd">
+        <div><div class="bill-month">${c?c.name:'?'}</div><div style="font-size:10px;opacity:0.7">${MONTHS[b.month]} ${b.year} · ${b.deliveries.length} days</div></div>
+        <div class="bill-total">₹${b.totalDue.toFixed(0)}</div>
+      </div>
+      <div class="bill-body">
+        <div class="bill-row"><span class="lbl">This month's milk</span><span class="val">₹${b.subtotal.toFixed(0)}</span></div>
+        ${b.carryForward>0?`<div class="bill-row"><span class="lbl">+ Previous dues</span><span class="val" style="color:var(--saffron)">₹${b.carryForward.toFixed(0)}</span></div>`:''}
+        <div class="bill-row"><span class="lbl">Received</span><span class="val" style="color:var(--green)">₹${(b.amountPaid||0).toFixed(0)}</span></div>
+        <div class="bill-row"><span class="lbl">Balance due</span><span class="val" style="color:${rem>0?'var(--red)':'var(--green)'};font-size:13px;font-weight:800">₹${rem.toFixed(0)}</span></div>
+        <div style="margin-top:5px"><span class="status-tag ${sc}">${st}</span></div>
+      </div>
+      <div class="bill-actions">
+        <button class="btn btn-primary btn-sm" onclick="viewBill('${b.id}')">👁️ View &amp; Share</button>
+        ${b.status!=='paid'?`
+          <button class="btn btn-green btn-sm" onclick="markFullPaid('${b.id}')">✅ Paid</button>
+          <button class="btn btn-gold btn-sm" onclick="openPartial('${b.id}')">💰 Partial</button>`:''}
+        ${b.status==='paid'?`<button class="btn btn-grey btn-sm" onclick="undoPaid('${b.id}')">↩ Undo</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function genOneBill(custId,mo,yr){
+  const b=generateBill(custId,mo,yr);
+  if(!b){toast('No deliveries to bill');return;}
+  toast('Bill generated ✅');
+  initBillsPage();
+}
+function genAllBills(mo,yr){
+  let count=0;
+  db.customers.forEach(c=>{const b=generateBill(c.id,mo,yr);if(b)count++;});
+  toast(`${count} bill${count!==1?'s':''} generated ✅`);
+  initBillsPage();
+}
+function markFullPaid(billId){
+  const b=db.bills.find(b=>b.id===billId);const c=db.customers.find(c=>c.id===b.customerId);
+  confirmDialog('✅','Mark as Fully Paid?',`Recording ₹${billRem(b).toFixed(0)} received from ${c.name}.`,'Yes, Paid','btn-green',()=>{
+    b.amountPaid=b.totalDue;b.status='paid';b.paidAt=new Date().toISOString();saveDB();renderBills();toast('Bill marked as paid ✅');
+  });
+}
+function undoPaid(billId){
+  confirmDialog('↩','Undo Payment?','This reverts the bill back to unpaid status.','Yes, Undo','btn-saffron',()=>{
+    const b=db.bills.find(b=>b.id===billId);b.amountPaid=0;b.status='pending';b.paidAt=null;saveDB();renderBills();toast('Payment undone');
+  });
+}
+function openPartial(billId){
+  const b=db.bills.find(b=>b.id===billId);const rem=billRem(b);
+  document.getElementById('partBillId').value=billId;
+  document.getElementById('partTotal').textContent=`₹${b.totalDue.toFixed(0)}`;
+  document.getElementById('partPaid').textContent=`₹${(b.amountPaid||0).toFixed(0)}`;
+  document.getElementById('partRem').textContent=`₹${rem.toFixed(0)}`;
+  document.getElementById('partAmt').value='';
+  openModal('mPartial');
+}
+function savePartial(){
+  const id=document.getElementById('partBillId').value;const amt=parseFloat(document.getElementById('partAmt').value);
+  if(!amt||amt<=0){toast('Enter a valid amount');return;}
+  const b=db.bills.find(b=>b.id===id);b.amountPaid=(b.amountPaid||0)+amt;
+  b.status=b.amountPaid>=b.totalDue?'paid':'partial';
+  if(b.status==='paid')b.paidAt=new Date().toISOString();
+  saveDB();closeModal('mPartial');renderBills();toast(`₹${amt} recorded ✅`);
+}
+
+// ══════════════════ VIEW BILL ══════════════════
+function viewBill(billId){
+  const b=db.bills.find(b=>b.id===billId);
+  const c=db.customers.find(c=>c.id===b.customerId);
+  const sel=db.settings;const rem=billRem(b);
+
+  const rows=b.deliveries.sort((a,z)=>a.date.localeCompare(z.date)).map(d=>{
+    const dt=new Date(d.date+'T00:00:00');
+    return`<tr><td>${dt.getDate()} ${MONTHS[dt.getMonth()].substr(0,3)}</td><td>${DAYS[dt.getDay()]}</td><td>${d.qty}L</td><td>₹${d.rate}</td><td class="amt">₹${(d.qty*d.rate).toFixed(0)}</td></tr>`;
+  }).join('');
+
+  document.getElementById('viewBillContent').innerHTML=`
+    <div class="modal-title">Bill — ${c.name}</div>
+    <div id="printArea" style="border:2px solid var(--blue);border-radius:var(--radius);padding:13px;background:white;margin-bottom:12px">
+      <div style="text-align:center;border-bottom:2px dashed var(--border);padding-bottom:10px;margin-bottom:10px">
+        <div style="font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:var(--blue)">🥛 ${sel.name||'DoodhKhata'}</div>
+        ${sel.phone?`<div style="font-size:12px;color:var(--text-muted)">📞 ${sel.phone}</div>`:''}
+        <div style="font-size:13px;font-weight:700;color:var(--blue);margin-top:7px">${MONTHS[b.month]} ${b.year} — Milk Bill</div>
+        <div style="font-size:12px;color:var(--text-muted)">Customer: <b>${c.name}</b>${c.phone?` · 📞 ${c.phone}`:''}</div>
+      </div>
+      ${b.carryForward>0?`<div style="background:#FFF3CD;border-left:3px solid var(--gold);padding:6px 10px;border-radius:6px;font-size:12px;color:#856404;margin-bottom:8px">⚠️ Previous dues carried forward: ₹${b.carryForward.toFixed(0)}</div>`:''}
+      <div style="overflow-x:auto">
+      <table class="tbl" style="margin-bottom:9px">
+        <tr><th>Date</th><th>Day</th><th>Qty</th><th>Rate</th><th>Amt</th></tr>
+        ${rows}
+        <tr style="background:var(--warm)"><td colspan="4"><b>Month Total (${b.deliveries.length} days)</b></td><td class="amt"><b>₹${b.subtotal.toFixed(0)}</b></td></tr>
+        ${b.carryForward>0?`<tr style="background:#FFF3CD"><td colspan="4">+ Previous Dues</td><td class="amt" style="color:var(--saffron)">₹${b.carryForward.toFixed(0)}</td></tr>`:''}
+        <tr style="background:var(--blue);color:white"><td colspan="4"><b>TOTAL DUE</b></td><td><b style="color:var(--saffron-light);font-size:14px">₹${b.totalDue.toFixed(0)}</b></td></tr>
+        ${b.amountPaid>0?`<tr style="background:#D4EDDA"><td colspan="4">Paid</td><td class="amt" style="color:var(--green)">₹${b.amountPaid.toFixed(0)}</td></tr>
+        <tr style="background:#FEE2E2"><td colspan="4"><b>Balance</b></td><td class="amt" style="color:var(--red)"><b>₹${rem.toFixed(0)}</b></td></tr>`:''}
+      </table></div>
+      <div style="text-align:center;font-size:10px;color:var(--text-muted)">Generated: ${new Date(b.generatedAt).toLocaleDateString('en-IN')}${b.paidAt?` · Paid: ${new Date(b.paidAt).toLocaleDateString('en-IN')}`:''}  ·  DoodhKhata</div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="downloadBillPDF('${b.id}')">📄 Download PDF</button>
+      <button class="btn btn-wa btn-sm" onclick="generateBillImage('${b.id}')">📲 Image for WhatsApp</button>
+      <button class="btn btn-outline btn-sm" onclick="shareWAText('${b.id}')">📤 WhatsApp Text</button>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:7px;line-height:1.6">
+      📄 <b>PDF</b> → saves to Downloads · 📲 <b>Image</b> → save & share on WhatsApp · 📤 <b>Text</b> → opens WhatsApp with bill details
+    </div>`;
+  openModal('mViewBill');
+}
+
+// ══════════════════ PDF DOWNLOAD (real, no print dialog) ══════════════════
+// jsPDF uses helvetica which can't render emoji — strip them cleanly
+function stripEmoji(str){
+  return(str||'').replace(/[\u{1F000}-\u{1FFFF}|\u{2600}-\u{27FF}|\u{FE00}-\u{FEFF}|\u{1F900}-\u{1F9FF}|[\u2500-\u2BEF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDC00-\uDFFF]|[⚠️✅❌📅🥛📞💰🔴]/gu,'').trim();
+}
+function downloadBillPDF(billId){
+  const b=db.bills.find(b=>b.id===billId);
+  const c=db.customers.find(c=>c.id===b.customerId);
+  const sel=db.settings;const rem=billRem(b);
+
+  if(typeof window.jspdf==='undefined'||!window.jspdf.jsPDF){
+    toast('PDF library loading, please try again in a moment…');return;
+  }
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,margin=18;let y=20;
+
+  const sellerName=stripEmoji(sel.name||'DoodhKhata');
+  const custName=stripEmoji(c.name);
+
+  // Header box
+  doc.setFillColor(26,58,92);doc.roundedRect(margin,y,W-margin*2,30,3,3,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont('helvetica','bold');
+  doc.text(sellerName,margin+5,y+10);
+  if(sel.phone){doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(200,220,255);doc.text(`Ph: ${sel.phone}`,margin+5,y+17);}
+  doc.setFontSize(12);doc.setFont('helvetica','bold');doc.setTextColor(255,200,80);
+  doc.text(`Milk Bill — ${MONTHS[b.month]} ${b.year}`,margin+5,y+24);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(200,220,255);
+  doc.text(`Customer: ${custName}${c.phone?' | Ph: '+c.phone:''}`,margin+5,y+29);
+  y+=36;
+
+  // Carry forward box
+  if(b.carryForward>0){
+    doc.setFillColor(255,243,205);doc.rect(margin,y,W-margin*2,10,'F');
+    doc.setTextColor(133,100,4);doc.setFontSize(9);
+    doc.text(`⚠ Previous unpaid dues carried forward: Rs. ${b.carryForward.toFixed(0)}`,margin+3,y+6);
+    y+=13;
+  }
+
+  // Table header
+  doc.setFillColor(245,237,216);doc.rect(margin,y,W-margin*2,8,'F');
+  doc.setTextColor(107,107,107);doc.setFontSize(8);doc.setFont('helvetica','bold');
+  const cols=[margin+2,margin+22,margin+55,margin+82,margin+105,margin+130];
+  ['Date','Day','Qty','Rate','Amount'].forEach((h,i)=>doc.text(h,cols[i],y+5.5));
+  y+=9;
+
+  // Rows
+  doc.setFont('helvetica','normal');doc.setTextColor(28,28,30);
+  const sortedDels=b.deliveries.sort((a,z)=>a.date.localeCompare(z.date));
+  sortedDels.forEach((d,idx)=>{
+    if(idx%2===0){doc.setFillColor(255,253,249);doc.rect(margin,y,W-margin*2,7,'F');}
+    const dt=new Date(d.date+'T00:00:00');
+    doc.setFontSize(8);
+    doc.text(`${dt.getDate()} ${MONTHS[dt.getMonth()].substr(0,3)} ${b.year}`,cols[0],y+5);
+    doc.text(DAYS[dt.getDay()],cols[1],y+5);
+    doc.text(`${d.qty}L`,cols[2],y+5);
+    doc.text(`Rs.${d.rate}/L`,cols[3],y+5);
+    doc.setFont('helvetica','bold');doc.text(`Rs.${(d.qty*d.rate).toFixed(0)}`,cols[4],y+5);
+    doc.setFont('helvetica','normal');
+    y+=7;
+    if(y>270){doc.addPage();y=20;}
+  });
+
+  // Totals
+  const totalRows=[];
+  totalRows.push({label:`Month Total (${b.deliveries.length} deliveries)`,val:`Rs.${b.subtotal.toFixed(0)}`,bg:[245,237,216],tc:[26,58,92]});
+  if(b.carryForward>0)totalRows.push({label:'+ Previous Dues',val:`Rs.${b.carryForward.toFixed(0)}`,bg:[255,243,205],tc:[133,100,4]});
+  totalRows.push({label:'TOTAL DUE',val:`Rs.${b.totalDue.toFixed(0)}`,bg:[26,58,92],tc:[255,179,71],bold:true,big:true});
+  if(b.amountPaid>0){
+    totalRows.push({label:'Amount Paid',val:`Rs.${b.amountPaid.toFixed(0)}`,bg:[212,237,218],tc:[45,122,79]});
+    totalRows.push({label:'Balance Remaining',val:`Rs.${rem.toFixed(0)}`,bg:[254,226,226],tc:[192,57,43],bold:true});
+  }
+  totalRows.forEach(r=>{
+    doc.setFillColor(...r.bg);doc.rect(margin,y,W-margin*2,r.big?10:8,'F');
+    doc.setTextColor(...r.tc);doc.setFontSize(r.big?10:8);
+    doc.setFont('helvetica',r.bold?'bold':'normal');
+    doc.text(r.label,margin+3,y+(r.big?7:5.5));
+    doc.text(r.val,W-margin-3,y+(r.big?7:5.5),{align:'right'});
+    y+=r.big?11:9;
+  });
+
+  y+=6;
+  doc.setTextColor(150);doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.text(`Generated: ${new Date(b.generatedAt).toLocaleDateString('en-IN')}  ·  DoodhKhata`,W/2,y,{align:'center'});
+
+  const filename=`Bill_${c.name.replace(/\s+/g,'_')}_${MONTHS[b.month]}_${b.year}.pdf`;
+  doc.save(filename);
+  toast('PDF downloaded ✅');
+}
+
+// ══════════════════ BILL IMAGE FOR WHATSAPP ══════════════════
+let _currentBillImgData='', _currentBillImgName='';
+function generateBillImage(billId){
+  const b=db.bills.find(b=>b.id===billId);
+  const c=db.customers.find(c=>c.id===b.customerId);
+  const sel=db.settings;const rem=billRem(b);
+
+  const canvas=document.getElementById('billCanvas');
+  const rowH=28,headerH=160,footerH=60;
+  const totalRows=b.deliveries.length+(b.carryForward>0?1:0)+(b.amountPaid>0?2:0)+2;
+  const W=640,H=headerH+(totalRows+1)*rowH+footerH+(b.carryForward>0?36:0);
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle='#FFF8EE';ctx.fillRect(0,0,W,H);
+
+  // Header
+  const grad=ctx.createLinearGradient(0,0,W,80);grad.addColorStop(0,'#1A3A5C');grad.addColorStop(1,'#2A5298');
+  ctx.fillStyle=grad;ctx.roundRect(16,16,W-32,120,12);ctx.fill();
+  ctx.fillStyle='white';
+  ctx.font='bold 26px sans-serif';ctx.fillText(`🥛 ${sel.name||'DoodhKhata'}`,36,50);
+  if(sel.phone){ctx.font='16px sans-serif';ctx.fillStyle='rgba(255,255,255,0.75)';ctx.fillText(`📞 ${sel.phone}`,36,72);}
+  ctx.font='bold 20px sans-serif';ctx.fillStyle='#FFB347';ctx.fillText(`${MONTHS[b.month]} ${b.year} — Milk Bill`,36,100);
+  ctx.font='16px sans-serif';ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.fillText(`Customer: ${c.name}${c.phone?' · '+c.phone:''}`,36,122);
+
+  let y=148;
+
+  // Carry fwd
+  if(b.carryForward>0){
+    ctx.fillStyle='#FFF3CD';ctx.beginPath();ctx.roundRect(16,y,W-32,30,6);ctx.fill();
+    ctx.fillStyle='#856404';ctx.font='14px sans-serif';
+    ctx.fillText(`⚠ Previous unpaid dues carried forward: ₹${b.carryForward.toFixed(0)}`,28,y+20);
+    y+=38;
+  }
+
+  // Table header
+  ctx.fillStyle='#F5EDD8';ctx.fillRect(16,y,W-32,rowH);
+  ctx.fillStyle='#6B6B6B';ctx.font='bold 13px sans-serif';
+  [['Date',30],['Day',200],['Qty',270],['Rate',340],['Amount',440]].forEach(([t,x])=>ctx.fillText(t,x,y+18));
+  y+=rowH;
+
+  // Delivery rows
+  b.deliveries.sort((a,z)=>a.date.localeCompare(z.date)).forEach((d,i)=>{
+    ctx.fillStyle=i%2===0?'white':'#FFFDF9';ctx.fillRect(16,y,W-32,rowH);
+    const dt=new Date(d.date+'T00:00:00');
+    ctx.fillStyle='#1C1C1E';ctx.font='14px sans-serif';
+    ctx.fillText(`${dt.getDate()} ${MONTHS[dt.getMonth()].substr(0,3)}`,30,y+18);
+    ctx.fillText(DAYS[dt.getDay()],200,y+18);
+    ctx.fillText(`${d.qty}L`,270,y+18);
+    ctx.fillText(`₹${d.rate}/L`,340,y+18);
+    ctx.font='bold 14px sans-serif';ctx.fillStyle='#1A3A5C';
+    ctx.fillText(`₹${(d.qty*d.rate).toFixed(0)}`,440,y+18);
+    y+=rowH;
+  });
+
+  // Totals
+  function totRow(label,val,bg,tc,bold){
+    ctx.fillStyle=bg;ctx.fillRect(16,y,W-32,rowH);
+    ctx.fillStyle=tc;ctx.font=(bold?'bold ':'')+`15px sans-serif`;ctx.fillText(label,30,y+19);
+    ctx.font='bold 15px sans-serif';ctx.fillText(val,W-100,y+19);y+=rowH;
+  }
+  totRow(`Month Total (${b.deliveries.length} days)`,`₹${b.subtotal.toFixed(0)}`,'#F5EDD8','#1A3A5C',true);
+  if(b.carryForward>0)totRow('+ Previous Dues',`₹${b.carryForward.toFixed(0)}`,'#FFF3CD','#856404',false);
+  // Grand total row — bigger
+  ctx.fillStyle='#1A3A5C';ctx.fillRect(16,y,W-32,rowH+6);
+  ctx.fillStyle='#FFB347';ctx.font='bold 17px sans-serif';ctx.fillText('TOTAL DUE',30,y+21);
+  ctx.fillText(`₹${b.totalDue.toFixed(0)}`,W-100,y+21);y+=rowH+6;
+  if(b.amountPaid>0){
+    totRow(`Paid`,`₹${b.amountPaid.toFixed(0)}`,'#D4EDDA','#2D7A4F',false);
+    totRow('Balance Remaining',`₹${rem.toFixed(0)}`,'#FEE2E2','#C0392B',true);
+  }
+
+  y+=12;
+  ctx.fillStyle='#aaa';ctx.font='12px sans-serif';
+  ctx.fillText(`Generated: ${new Date(b.generatedAt).toLocaleDateString('en-IN')}  ·  DoodhKhata`,W/2-100,y);
+
+  // Border around everything
+  ctx.strokeStyle='#E8DCC8';ctx.lineWidth=2;ctx.strokeRect(10,10,W-20,H-20);
+
+  _currentBillImgData=canvas.toDataURL('image/png');
+  _currentBillImgName=`Bill_${c.name.replace(/\s+/g,'_')}_${MONTHS[b.month]}_${b.year}.png`;
+
+  document.getElementById('shareImg').src=_currentBillImgData;
+  // Check if native share is available (mobile Chrome/Safari)
+  const nativeBtn=document.getElementById('nativeShareBtn');
+  const dlBtn=document.getElementById('downloadImgBtn');
+  const subHint=document.getElementById('shareSubHint');
+  if(navigator.share&&navigator.canShare){
+    nativeBtn.style.display='inline-flex';
+    dlBtn.textContent='📥 Save Only';
+    subHint.textContent='Tap "Share via WhatsApp" to send directly — or save image first';
+  } else {
+    nativeBtn.style.display='none';
+    dlBtn.textContent='📥 Save Image';
+    subHint.textContent='Save image → Open WhatsApp → Send as attachment';
+  }
+  document.getElementById('shareImgModal').classList.add('open');
+}
+function downloadBillImg(){
+  const a=document.createElement('a');a.href=_currentBillImgData;a.download=_currentBillImgName;a.click();
+  setTimeout(()=>{
+    document.getElementById('shareSubHint').textContent='✅ Image saved! Now open WhatsApp and send it as an attachment.';
+    document.getElementById('shareSubHint').style.color='#aaffaa';
+  },500);
+}
+
+async function tryNativeShare(){
+  try{
+    const res=await fetch(_currentBillImgData);
+    const blob=await res.blob();
+    const file=new File([blob],_currentBillImgName,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:_currentBillImgName});
+      toast('Shared ✅');
+    } else {
+      downloadBillImg();
+    }
+  }catch(e){
+    downloadBillImg();
+  }
+}
+
+function closeShareImg(){document.getElementById('shareImgModal').classList.remove('open');}
+
+// Override generateBillImage to also trigger native share check
+
+
+// WhatsApp text fallback
+function shareWAText(billId){
+  const b=db.bills.find(b=>b.id===billId);
+  const c=db.customers.find(c=>c.id===b.customerId);
+  const sel=db.settings;const rem=billRem(b);
+  const milkName=sel.name||'DoodhKhata';
+
+  // Group deliveries by week for compact view
+  const sortedDels=b.deliveries.sort((a,z)=>a.date.localeCompare(z.date));
+  
+  // Build a compact date-amount list (max ~20 entries readable on WhatsApp)
+  const delLines=sortedDels.map(d=>{
+    const dt=new Date(d.date+'T00:00:00');
+    const day=String(dt.getDate()).padStart(2,' ');
+    const mon=MONTHS[dt.getMonth()].substr(0,3);
+    const amt=(d.qty*d.rate).toFixed(0);
+    return`  ${day} ${mon}  ${d.qty}L  ₹${amt}`;
+  }).join('\n');
+
+  const dashes='━━━━━━━━━━━━━━━━━━━━';
+
+  const lines=[
+    `🥛 *MILK BILL*`,
+    `${dashes}`,
+    `🏪 *${milkName}*`,
+    sel.phone?`📞 ${sel.phone}`:'',
+    ``,
+    `👤 *${c.name}*`,
+    c.phone?`📱 ${c.phone}`:'',
+    `📅 *${MONTHS[b.month]} ${b.year}*`,
+    `${dashes}`,
+    `📋 *Delivery Details (${b.deliveries.length} days):*`,
+    `  Date       Qty    Amt`,
+    delLines,
+    `${dashes}`,
+    `🥛 Month Total     *₹${b.subtotal.toFixed(0)}*`,
+    b.carryForward>0?`⚠️ Previous dues   *₹${b.carryForward.toFixed(0)}*`:'',
+    `${dashes}`,
+    `💰 *TOTAL DUE: ₹${b.totalDue.toFixed(0)}*`,
+    b.amountPaid>0?`✅ Amount paid: ₹${b.amountPaid.toFixed(0)}`:'',
+    rem>0?`🔴 *Balance: ₹${rem.toFixed(0)}*`:`✅ *Fully Paid — Thank You! 🙏*`,
+    `${dashes}`,
+    `_DoodhKhata_`
+  ].filter(x=>x!=='').join('\n');
+
+  const phone=c.phone?c.phone.replace(/\D/g,''):'';
+  window.open(phone?`https://wa.me/91${phone}?text=${encodeURIComponent(lines)}`:`https://wa.me/?text=${encodeURIComponent(lines)}`,'_blank');
+}
+
+// ══════════════════ LOGS ══════════════════
+let _logMonth='';
+function initLogsPage(){
+  const ms=new Set();
+  db.deliveries.forEach(d=>{const dt=new Date(d.date+'T00:00:00');ms.add(`${dt.getFullYear()}-${dt.getMonth()}`);});
+  const now=new Date();ms.add(`${now.getFullYear()}-${now.getMonth()}`);
+  const months=[...ms].sort().reverse().slice(0,6);
+  if(!_logMonth||!months.includes(_logMonth))_logMonth=months[0]||`${now.getFullYear()}-${now.getMonth()}`;
+  document.getElementById('logChips').innerHTML=months.map(m=>{
+    const[y,mo]=m.split('-');
+    return`<div class="mchip ${m===_logMonth?'active':''}" onclick="selLogMonth(this,'${m}')">${MONTHS[parseInt(mo)].substr(0,3)} ${y}</div>`;
+  }).join('');
+  renderLogs();
+}
+function selLogMonth(el,m){
+  document.querySelectorAll('#logChips .mchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');_logMonth=m;renderLogs();
+}
+
+function renderLogs(){
+  const q=(document.getElementById('logSearch').value||'').toLowerCase().trim();
+  const clearBtn=document.getElementById('logSearchClear');
+  if(clearBtn)clearBtn.classList.toggle('visible',q.length>0);
+
+  const[yr,mo]=(_logMonth||`${new Date().getFullYear()}-${new Date().getMonth()}`).split('-');
+  const year=parseInt(yr),month=parseInt(mo);
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const todayS=todayStr();
+  const el=document.getElementById('logContent');
+
+  if(!db.customers.length){
+    el.innerHTML=`<div class="empty"><div class="ei">👥</div><h3>No Buyers</h3><p>Add buyers first</p></div>`;
+    return;
+  }
+
+  // If a buyer is searched → show their calendar view
+  if(q){
+    const matched=db.customers.filter(c=>c.name.toLowerCase().includes(q));
+    if(!matched.length){
+      el.innerHTML=`<div class="empty"><div class="ei">🔍</div><h3>No buyer found</h3><p>Try a different name</p></div>`;
+      return;
+    }
+    el.innerHTML=matched.map(c=>renderBuyerCalendarCard(c,year,month,daysInMonth,todayS)).join('');
+    return;
+  }
+
+  // Default: clean summary table — all buyers for selected month
+  let totalDel=0,totalL=0,totalAmt=0;
+  const rows=db.customers.map(c=>{
+    const rate=effRate(c);
+    let cDel=0,cSkip=0,cL=0,cAmt=0;
+    for(let d=1;d<=daysInMonth;d++){
+      const ds=`${yr}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if(ds>todayS)continue;
+      const del=db.deliveries.find(x=>x.customerId===c.id&&x.date===ds);
+      if(!del&&shouldDeliver(c,ds)){cDel++;cL+=c.defaultQty;cAmt+=c.defaultQty*rate;}
+      else if(del&&del.status==='delivered'){cDel++;cL+=del.qty;cAmt+=del.qty*del.rate;}
+      else if(del&&del.status==='skipped')cSkip++;
+    }
+    totalDel+=cDel;totalL+=cL;totalAmt+=cAmt;
+    return{c,cDel,cSkip,cL,cAmt};
+  });
+
+  el.innerHTML=`
+    <div class="card" style="margin-bottom:10px;padding:10px 12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:11px;color:var(--text-muted)">Month total</div>
+          <div style="font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:800;color:var(--green)">₹${totalAmt.toFixed(0)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text-muted)">${totalDel} deliveries · ${totalL.toFixed(1)}L</div>
+          <div style="font-size:11px;color:var(--text-muted)">${db.customers.length} buyers</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 40px 45px 55px 55px 30px;background:var(--warm);padding:8px 10px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;gap:4px">
+        <div>Buyer</div><div style="text-align:center">Del</div><div style="text-align:center">Skip</div><div style="text-align:right">Litres</div><div style="text-align:right">Amount</div><div></div>
+      </div>
+      ${rows.map(({c,cDel,cSkip,cL,cAmt})=>`
+        <div style="display:grid;grid-template-columns:1fr 40px 45px 55px 55px 30px;padding:9px 10px;border-bottom:1px solid var(--border);align-items:center;gap:4px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--blue)">${c.name}</div>
+            <div style="font-size:10px;color:var(--text-muted)">${c.defaultQty}L · ₹${effRate(c)}/L</div>
+          </div>
+          <div style="text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;color:var(--green);font-size:14px">${cDel}</div>
+          <div style="text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;color:${cSkip>0?'var(--red)':'var(--text-muted)'};font-size:14px">${cSkip}</div>
+          <div style="text-align:right;font-size:12px;color:var(--text-muted)">${cL.toFixed(1)}L</div>
+          <div style="text-align:right;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:13px;color:var(--blue)">₹${cAmt.toFixed(0)}</div>
+          <div style="text-align:center"><button style="background:none;border:none;font-size:16px;cursor:pointer;padding:2px" onclick="searchLogBuyer('${c.name}')" title="View calendar">🗓️</button></div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);text-align:center;padding:10px 0">🔍 Search a buyer above to see their full calendar</div>`;
+}
+
+function searchLogBuyer(name){
+  const inp=document.getElementById('logSearch');
+  inp.value=name;
+  const clearBtn=document.getElementById('logSearchClear');
+  if(clearBtn)clearBtn.classList.add('visible');
+  renderLogs();
+  inp.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderBuyerCalendarCard(c,year,month,daysInMonth,todayS){
+  const rate=effRate(c);
+  let cDel=0,cSkip=0,cL=0,cAmt=0;
+  const dayData={};
+
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    if(ds>todayS){dayData[d]={st:'future',ds};continue;}
+    const schd=shouldDeliver(c,ds);
+    const del=db.deliveries.find(x=>x.customerId===c.id&&x.date===ds);
+    if(!schd){dayData[d]={st:'off',ds};}
+    else if(!del){dayData[d]={st:'unset',ds};} // not entered — no assumption
+    else if(del.status==='delivered'){dayData[d]={st:'delivered',ds,qty:del.qty,amt:del.qty*effRate(c),note:del.note};cDel++;cL+=del.qty;cAmt+=del.qty*effRate(c);}
+    else{dayData[d]={st:'skipped',ds,note:del.note};cSkip++;}
+  }
+
+  const firstDay=new Date(year,month,1).getDay();
+  let calHtml='';
+  DAYS.forEach(d=>calHtml+=`<div class="cal-dow">${d[0]}</div>`);
+  for(let i=0;i<firstDay;i++)calHtml+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const info=dayData[d];
+    let cls='cal-day';
+    if(info.st==='future'){cls+=' future';}
+    else if(info.st==='off'){cls+=' cal-off';}
+    else if(info.st==='unset'){cls+=' cal-unset';}
+    else if(info.st==='delivered'){cls+=' delivered';}
+    else if(info.st==='skipped'){cls+=' skipped';}
+    const onclick=info.st!=='future'?`onclick="openEditForBuyerDate('${c.id}','${info.ds}')"`:'';
+    const ttip=info.st==='delivered'?`${info.qty}L = ₹${info.amt?.toFixed(0)}`:info.st==='skipped'?'Skipped':info.st==='unset'?'Not marked':info.st;
+    calHtml+=`<div class="${cls}" ${onclick} title="${ttip}">${d}</div>`;
+  }
+
+  // Detailed log list — only show days that have an explicit entry
+  const logRows=[];
+  for(let d=daysInMonth;d>=1;d--){
+    const info=dayData[d];
+    if(info.st==='future'||info.st==='off'||info.st==='unset')continue;
+    const dt=new Date(info.ds+'T00:00:00');
+    logRows.push(`<div style="display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid var(--border);gap:8px">
+      <div style="min-width:70px;font-size:12px;color:var(--text-muted)">${d} ${MONTHS[month].substr(0,3)} (${DAYS[dt.getDay()]})</div>
+      <div style="flex:1;font-size:13px;font-weight:600;color:${info.st==='skipped'?'var(--red)':'var(--text)'}">
+        ${info.st==='skipped'?'❌ Skipped':`${info.qty}L`}
+        ${info.note?`<span style="font-size:10px;color:var(--text-muted);font-weight:400"> · ${info.note}</span>`:''}
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--blue-mid)">${info.st!=='skipped'?'₹'+(info.amt||0).toFixed(0):'—'}</div>
+      <button onclick="openEditForBuyerDate('${c.id}','${info.ds}')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 6px;cursor:pointer;font-size:12px;color:var(--text-muted)" title="Edit">✏️</button>
+    </div>`);
+  }
+
+  return`<div class="card" style="margin-bottom:12px;padding:0;overflow:hidden">
+    <!-- Buyer header -->
+    <div style="display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--border)">
+      <div class="avatar">${c.name[0].toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:var(--blue)">${c.name}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${c.defaultQty}L/day · ₹${rate}/L · ${schedLabel(c)}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:var(--green)">₹${cAmt.toFixed(0)}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${cDel} delivered · ${cSkip} skipped · ${cL.toFixed(1)}L</div>
+      </div>
+    </div>
+    <!-- Calendar -->
+    <div style="padding:10px">
+      <div class="cal-grid" style="margin-bottom:6px">${calHtml}</div>
+      <div class="cal-legend">
+        <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#D4EDDA"></div>Delivered</div>
+        <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#FEE2E2"></div>Skipped</div>
+        <div class="cal-leg-item"><div class="cal-leg-dot" style="background:#fafafa;border:1px dashed #ccc"></div>Not marked</div>
+        <div class="cal-leg-item" style="color:var(--saffron);font-weight:700">Tap any date to edit</div>
+      </div>
+    </div>
+    <!-- Day-wise log list -->
+    <div style="border-top:2px solid var(--border)">
+      <div style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;background:var(--warm)">Detailed log</div>
+      ${logRows.join('')}
+    </div>
+  </div>`;
+}
+
+function openEditForBuyerDate(custId,ds){
+  document.getElementById('mEditDelTitle').textContent=`Edit — ${fmtDate(ds)}`;
+  document.getElementById('edDate').value=ds;
+  const sel=document.getElementById('edBuyerSel');
+  sel.innerHTML=db.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  sel.value=custId;
+  document.getElementById('edCustId').value=custId;
+  prefillEditDel();
+  openModal('mEditDel');
+}
+
+function openCalDayForBuyer(ds,custId){openEditForBuyerDate(custId,ds);}
+function openDetailFromLog(custId){openDetail(custId);}
+
+// ══════════════════ SETTINGS ══════════════════
+function loadSettings(){
+  document.getElementById('sName').value=db.settings.name||'';
+  document.getElementById('sPhone').value=db.settings.phone||'';
+  document.getElementById('sRate').value=db.settings.defaultRate||60;
+}
+function saveSetting(){
+  db.settings.name=document.getElementById('sName').value.trim();
+  db.settings.phone=document.getElementById('sPhone').value.trim();
+  db.settings.defaultRate=parseFloat(document.getElementById('sRate').value)||60;
+  saveDB();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`doodhkhata_backup_${todayStr()}.json`;a.click();
+  toast('Backup downloaded 📥');
+}
+function clearAllData(){
+  confirmDialog('🗑️','Clear All Data?','This will permanently delete all buyers, deliveries, and bills. This cannot be undone. Take a backup first!','Yes, Clear Everything','btn-red',()=>{
+    db={settings:{name:db.settings.name,phone:db.settings.phone,defaultRate:db.settings.defaultRate,role:db.settings.role},customers:[],deliveries:[],bills:[]};
+    saveDB();
+    toast('All data cleared ✅');
+    showPage('today');
+  });
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();r.onload=ev=>{
+    try{const imp=JSON.parse(ev.target.result);if(!imp.customers||!imp.deliveries)throw new Error();
+      confirmDialog('📤','Import Backup?','All current data will be replaced.','Import','btn-primary',()=>{db=imp;saveDB();toast('Imported ✅');showPage('today');});
+    }catch{toast('Invalid backup file');}
+  };r.readAsText(file);
+}
+
+// ══════════════════ BUYER MODE ══════════════════
+function populateBuyerSelects(){
+  const opts='<option value="">-- Select --</option>'+db.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  ['bSel','bBillSel','bLogSel'].forEach(id=>{document.getElementById(id).innerHTML=opts;});
+}
+function renderBDash(){
+  const id=document.getElementById('bSel').value;const el=document.getElementById('bDashContent');
+  if(!id){el.innerHTML='';return;}
+  const c=db.customers.find(c=>c.id===id);const now=new Date();
+  // Use computeMonthDels so auto-deliveries are included
+  const mDels=computeMonthDels(id,now.getMonth(),now.getFullYear()).filter(d=>d.status==='delivered');
+  const mAmt=mDels.reduce((s,d)=>s+d.qty*d.rate,0),mL=mDels.reduce((s,d)=>s+d.qty,0);
+  const due=totalDue(id);const todayDel=getDel(id,todayStr());
+  el.innerHTML=`
+    <div style="background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;border-radius:var(--radius);padding:15px;margin-bottom:10px;text-align:center">
+      <div style="font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800">${c.name}</div>
+      <div style="font-size:11px;opacity:0.7;margin-top:2px">${c.defaultQty}L/day · ₹${effRate(c)}/L</div>
+      <div style="font-family:'Baloo 2',sans-serif;font-size:28px;font-weight:800;color:var(--saffron-light);margin:6px 0">₹${mAmt.toFixed(0)}</div>
+      <div style="font-size:11px;opacity:0.7">${MONTHS[now.getMonth()]} ${now.getFullYear()} · ${mDels.length} deliveries · ${mL.toFixed(1)}L</div>
+    </div>
+    <div class="summary-row">
+      <div class="sbox"><div class="n">${mDels.length}</div><div class="l">Days</div></div>
+      <div class="sbox g"><div class="n">${mL.toFixed(1)}</div><div class="l">Litres</div></div>
+      <div class="sbox o"><div class="n">₹${due.toFixed(0)}</div><div class="l">Due</div></div>
+      <div class="sbox ${due===0?'g':'r'}"><div class="n">${due===0?'✅':'⚠️'}</div><div class="l">${due===0?'Clear':'Unpaid'}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🌅 Today's Delivery</div>
+      ${todayDel?(todayDel.status==='delivered'?`<div style="color:var(--green);font-weight:600;font-size:13px">✅ Milk received — ${todayDel.qty}L${todayDel.note?` (${todayDel.note})`:''}</div>`:`<div style="color:var(--red);font-weight:600;font-size:13px">❌ No milk today${todayDel.note?` — ${todayDel.note}`:''}</div>`):`<div style="color:var(--text-muted);font-size:13px">⏳ Not yet updated by seller</div>`}
+    </div>`;
+}
+function renderBBills(){
+  const id=document.getElementById('bBillSel').value;const el=document.getElementById('bBillsContent');
+  if(!id){el.innerHTML='';return;}
+  const bills=db.bills.filter(b=>b.customerId===id).sort((a,b)=>b.year-a.year||b.month-a.month);
+  if(!bills.length){el.innerHTML=`<div class="empty"><div class="ei">🧾</div><h3>No Bills Yet</h3></div>`;return;}
+  el.innerHTML=bills.map(b=>{const rem=billRem(b);const sc=b.status==='paid'?'paid':b.status==='partial'?'partial':'pending';
+    return`<div class="bill-card">
+      <div class="bill-hd"><div class="bill-month">${MONTHS[b.month]} ${b.year}</div><div class="bill-total">₹${b.totalDue.toFixed(0)}</div></div>
+      <div class="bill-body">
+        <div class="bill-row"><span class="lbl">${b.deliveries.length} days</span><span class="val">₹${b.subtotal.toFixed(0)}</span></div>
+        ${b.carryForward>0?`<div class="bill-row"><span class="lbl">Carry fwd</span><span class="val" style="color:var(--saffron)">₹${b.carryForward.toFixed(0)}</span></div>`:''}
+        <div class="bill-row"><span class="lbl">Paid</span><span class="val" style="color:var(--green)">₹${(b.amountPaid||0).toFixed(0)}</span></div>
+        <div class="bill-row"><span class="lbl">Balance</span><span class="val" style="color:${rem>0?'var(--red)':'var(--green)'}">₹${rem.toFixed(0)}</span></div>
+        <span class="status-tag ${sc}" style="margin-top:5px;display:inline-block">${b.status==='paid'?'✅ Paid':b.status==='partial'?'⏳ Partial':'🔴 Unpaid'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderBLogs(){
+  const id=document.getElementById('bLogSel').value;const el=document.getElementById('bLogsContent');
+  if(!id){el.innerHTML='';return;}
+  const now=new Date();
+  const dels=getMonthDels(id,now.getMonth(),now.getFullYear()).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!dels.length){el.innerHTML=`<div class="empty"><div class="ei">📋</div><h3>No records this month</h3></div>`;return;}
+  const total=dels.filter(d=>d.status==='delivered').reduce((s,d)=>s+d.qty*d.rate,0);
+  el.innerHTML=`<div class="card" style="display:flex;justify-content:space-between;margin-bottom:8px">
+    <span style="font-size:12px;color:var(--text-muted)">${dels.filter(d=>d.status==='delivered').length} delivered</span>
+    <span style="font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--blue)">₹${total.toFixed(0)}</span>
+  </div>
+  <div style="overflow-x:auto"><table class="tbl">
+    <tr><th>Date</th><th>Day</th><th>Status</th><th>Qty</th><th>₹</th></tr>
+    ${dels.map(d=>{const dt=new Date(d.date+'T00:00:00');return`<tr>
+      <td>${dt.getDate()} ${MONTHS[dt.getMonth()].substr(0,3)}</td><td>${DAYS[dt.getDay()]}</td>
+      <td>${d.status==='delivered'?'✅':'❌'}</td>
+      <td>${d.status==='delivered'?d.qty+'L':'—'}</td>
+      <td class="amt">${d.status==='delivered'?'₹'+(d.qty*d.rate).toFixed(0):'—'}</td>
+    </tr>`;}).join('')}
+  </table></div>`;
+}
+
+// ══════════════════ FAB ══════════════════
+function fabAction(){openAddBuyer();}
+
+// ══════════════════ MODAL & CONFIRM ══════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+function confirmDialog(icon,title,msg,btnTxt,btnCls,cb){
+  document.getElementById('cIcon').textContent=icon;document.getElementById('cTitle').textContent=title;
+  document.getElementById('cMsg').textContent=msg;
+  const btn=document.getElementById('cOkBtn');btn.textContent=btnTxt;btn.className=`btn btn-sm ${btnCls}`;
+  btn.onclick=()=>{closeConfirm();cb();};document.getElementById('confirmBox').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirmBox').classList.remove('open');}
+
+// ══════════════════ TOAST ══════════════════
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ══════════════════ INIT ══════════════════
+loadDB();
+if(db.settings.role)launchApp(db.settings.role);
+// else onboarding stays visible
+</script>
+</body>
+</html>
